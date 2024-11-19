@@ -56,3 +56,19 @@ fun Appgrupo13Theme(
         content = content
     )
 }
+
+@Composable
+fun PlumTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = darkColorScheme(
+            primary = PurplePrimary,
+            background = DarkBackground,
+            surface = DarkBackground,
+            onPrimary = LightText,
+            onBackground = LightText,
+            onSurface = LightText
+        ),
+        typography = Typography,
+        content = content
+    )
+}
