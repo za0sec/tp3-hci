@@ -119,7 +119,7 @@ fun LoginScreen(navController: NavController) {
 
             // Login button
             Button(
-                onClick = { /* Lógica de autenticación */ },
+                onClick = { navController.navigate("dashboard") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF8A4FFF)
