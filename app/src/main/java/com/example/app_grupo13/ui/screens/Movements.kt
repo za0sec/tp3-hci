@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,14 +23,27 @@ fun MovementsScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(Color(0xFF17171F))
     ) {
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            contentAlignment = Alignment.Center
+
+        ){
+            Icon(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo Plum",
+                modifier = Modifier.size(150.dp),
+                tint = Color.Unspecified // Deja el color original del ícono
+            )
+        }
+
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(16.dp)
         ) {
-            // Encabezado con logo, texto y botones
+            // Encabezado con texto y botones (sin el logo)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -37,36 +51,25 @@ fun MovementsScreen(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo Plum",
-                        modifier = Modifier.size(36.dp),
-                        tint = Color.Unspecified // Deja el color original del ícono
-                    )
-                    Spacer(modifier = Modifier.width(8.dp)) // Espaciado entre el logo y el texto
-                    Text(
-                        "Movimientos",
-                        color = Color.White,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                Text(
+                    "Movimientos",
+                    color = Color(0xFF4A347F),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Row {
                     IconButton(onClick = { /* Acción del botón ordenar */ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_sort),
                             contentDescription = "Ordenar",
-                            tint = Color.White
+                            tint = Color(0xFF4A347F)
                         )
                     }
                     IconButton(onClick = { /* Acción del botón filtrar */ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_filtro),
                             contentDescription = "Filtrar",
-                            tint = Color.White
+                            tint = Color(0xFF4A347F)
                         )
                     }
                 }
@@ -83,7 +86,7 @@ fun MovementsScreen(navController: NavController) {
             )
 
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(0.5.dp)
             ) {
                 items(transactions) { transaction ->
                     TransactionCard(transaction)
@@ -102,40 +105,47 @@ data class Transaction(
 
 @Composable
 fun TransactionCard(transaction: Transaction) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1F1F1F))
+    Box(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(16.dp)
+
         ) {
-            Icon(
-                painter = painterResource(id = if (transaction.amount < 0) R.drawable.arrow_down else R.drawable.arrow_up),
-                contentDescription = if (transaction.amount < 0) "Gasto" else "Ingreso",
-                tint = if (transaction.amount < 0) Color.Red else Color.Green
-            )
-            
-            Column(
+            Row(
                 modifier = Modifier
-                    .padding(start = 16.dp)
-                    .weight(1f)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = transaction.name,
-                    color = Color.White,
-                    fontSize = 16.sp
+                Icon(
+                    painter = painterResource(id = if (transaction.amount < 0) R.drawable.arrow_down else R.drawable.arrow_up),
+                    contentDescription = if (transaction.amount < 0) "Gasto" else "Ingreso",
+                    tint = if (transaction.amount < 0) Color(0xFFEB4335) else Color(0xFF34A853),
+                    modifier = Modifier.size(50.dp)
                 )
-                Text(
-                    text = if (transaction.amount < 0) 
-                        "-$${String.format("%.2f", -transaction.amount)}" 
-                    else 
-                        "+$${String.format("%.2f", transaction.amount)}",
-                    color = if (transaction.amount < 0) Color.Red else Color.Green,
-                    fontSize = 14.sp
-                )
+
+                Column(
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = transaction.name,
+                        color = Color.Black,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = if (transaction.amount < 0)
+                            "-$${String.format("%.2f", -transaction.amount)}"
+                        else
+                            "+$${String.format("%.2f", transaction.amount)}",
+                        color = if (transaction.amount < 0) Color(0xFFEB4335) else Color(0xFF34A853),
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
     }
