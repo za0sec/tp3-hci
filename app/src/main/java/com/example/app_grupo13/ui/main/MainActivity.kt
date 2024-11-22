@@ -13,6 +13,7 @@ import com.example.app_grupo13.ui.screens.ResetPasswordScreen
 import com.example.app_grupo13.ui.screens.LoginScreen
 import com.example.app_grupo13.ui.screens.DashboardScreen
 import com.example.app_grupo13.ui.screens.MovementsScreen
+import com.example.app_grupo13.ui.screens.ProfileScreen
 import com.example.app_grupo13.ui.theme.PlumTheme
 
 class MainActivity : ComponentActivity() {
@@ -36,5 +37,6 @@ fun AppNavigation() {
         composable("reset_password") { ResetPasswordScreen(navController) }
         composable("dashboard") { DashboardScreen(navController) }
         composable("movements") { MovementsScreen(navController) }
+        composable("profile") { ProfileScreen(navController) }
     }
 }
