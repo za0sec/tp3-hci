@@ -158,11 +158,12 @@ fun validateMoneyError(amount: String, context: Context, navController : NavCont
 fun depositMoney(amount: Int, context: Context, navController: NavController) {
     println("Depósito de $amount realizado")
     val builder = AlertDialog.Builder(context)
-    builder.setMessage("Has depositado \$$amount exitosamente.")
-        .setTitle("Depósito realizado")
-        .setPositiveButton("Aceptar") { dialog, _ -> dialog.dismiss()
+    builder.setMessage("Se depositará un monto de \$$amount.")
+        .setTitle("Confimar depósito")
+        .setPositiveButton("Confimar") { dialog, _ -> dialog.dismiss()
             navController.popBackStack()
         }
+        .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
 
     val dialog: AlertDialog = builder.create()
     dialog.show()

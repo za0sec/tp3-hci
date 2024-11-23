@@ -171,11 +171,12 @@ fun validateTransferErrors(amount: String, aliasOrCvu: String, context: Context,
 fun transferMoney(amount: Int, aliasOrCvu:String, context: Context, navController: NavController) {
     println("Transferencia de $amount a $aliasOrCvu realizada exitosamente.")
     val builder = AlertDialog.Builder(context)
-    builder.setMessage("Has transferido \$$amount a $aliasOrCvu exitosamente.")
-        .setTitle("Transferencia realizada")
-        .setPositiveButton("Aceptar") { dialog, _ -> dialog.dismiss()
+    builder.setMessage("Se realizará una transferencia de \$$amount a $aliasOrCvu.")
+        .setTitle("Confirmar transferencia")
+        .setPositiveButton("Confirmar") { dialog, _ -> dialog.dismiss()
             navController.popBackStack()
         }
+        .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
 
     val dialog: AlertDialog = builder.create()
     dialog.show()
