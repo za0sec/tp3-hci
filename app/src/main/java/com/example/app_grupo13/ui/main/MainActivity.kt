@@ -17,6 +17,9 @@ import com.example.app_grupo13.ui.screens.ResetNewPasswordScreen
 import com.example.app_grupo13.ui.screens.ResetPasswordCodeScreen
 import com.example.app_grupo13.ui.screens.ResetPasswordScreen
 import com.example.app_grupo13.ui.theme.PlumTheme
+import com.example.app_grupo13.ui.screens.DepositScreen
+import com.example.app_grupo13.ui.screens.TransferScreen
+import com.example.app_grupo13.ui.screens.PayScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -43,8 +46,9 @@ fun AppNavigation() {
         composable("reset_password") { ResetPasswordScreen(navController) }
         composable("reset_password_code"){ResetPasswordCodeScreen(navController)}
         composable("reset_password_new") { ResetNewPasswordScreen(navController) }
-
-
+        composable("deposit") { DepositScreen(navController) }
+        composable("transfer") { TransferScreen(navController) }
+        composable("pay") { PayScreen(navController) }
     }
 }
 

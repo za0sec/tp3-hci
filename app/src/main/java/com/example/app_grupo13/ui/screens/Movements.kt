@@ -53,11 +53,12 @@ fun MovementsScreen(navController: NavController) {
             ) {
                 Text(
                     "Movimientos",
-                    color = Color(0xFF4A347F),
+                    color = Color.White,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Row {
+
                     IconButton(onClick = { /* Acción del botón ordenar */ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_sort),

@@ -1,5 +1,6 @@
 package com.example.app_grupo13.ui.screens
 
+import android.text.style.ClickableSpan
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -119,9 +121,11 @@ fun DashboardScreen(navController: NavController) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
-                            ActionIcon(R.drawable.ic_deposit, "Depositar", Color(0xFF66344A)) // Color morado
-                            ActionIcon(R.drawable.ic_transfer, "Transferir", Color(0xFFE08453)) // Color amarillo
-                            ActionIcon(R.drawable.ic_pay, "Pagar", Color(0xFFFFBC52)) // Color rojo
+
+                            ActionIcon(R.drawable.ic_deposit, "Depositar", Color(0xFF66344A), onClick = { navController.navigate("deposit") }) // Color morado
+                             // Color morado
+                            ActionIcon(R.drawable.ic_transfer, "Transferir", Color(0xFFE08453), onClick = { navController.navigate("transfer")}) // Color amarillo
+                            ActionIcon(R.drawable.ic_pay, "Pagar", Color(0xFFFFBC52), onClick = { navController.navigate("pay")}) // Color rojo
                         }
                     }
                 }
@@ -145,13 +149,20 @@ fun DashboardScreen(navController: NavController) {
 
 
 @Composable
-fun ActionIcon(icon: Int, text: String, backgroundColor: Color = Color.Transparent) {
+fun ActionIcon(
+    icon: Int,
+    text: String,
+    backgroundColor: Color = Color.Transparent,
+    onClick: () -> Unit
+    ) {
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(8.dp)
     ) {
         Box(
             modifier = Modifier
+                .clickable(onClick = onClick)
                 .size(60.dp) // Tamaño del círculo
                 .background(color = backgroundColor, shape = CircleShape), // Fondo circular
             contentAlignment = Alignment.Center
