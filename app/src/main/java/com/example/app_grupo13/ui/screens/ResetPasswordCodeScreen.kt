@@ -2,8 +2,6 @@ package com.example.app_grupo13.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,8 +15,8 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResetPasswordScreen(navController: NavController) {
-    var email by remember { mutableStateOf("") }
+fun ResetPasswordCodeScreen(navController: NavController) {
+    var code by remember { mutableStateOf("") }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -33,7 +31,7 @@ fun ResetPasswordScreen(navController: NavController) {
         ) {
             // Título
             Text(
-                text = "Recuperar contraseña",
+                text = "Ingresa el código",
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = 32.sp,
@@ -43,20 +41,13 @@ fun ResetPasswordScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo de Email
+            // Campo para el Código
             TextField(
-                value = email,
-                onValueChange = { email = it },
+                value = code,
+                onValueChange = { code = it },
                 singleLine = true,
-                label = { Text("Email", color = Color.Gray) },
-                placeholder = { Text("Ingresa tu correo electrónico", color = Color.Gray) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.MailOutline,
-                        contentDescription = "Email Icon",
-                        tint = Color(0xFF9C8AE0)
-                    )
-                },
+                label = { Text("Código", color = Color.Gray) },
+                placeholder = { Text("Ingresa el código recibido", color = Color.Gray) },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color(0xFF9C8AE0),
                     unfocusedIndicatorColor = Color.Gray,
@@ -72,7 +63,7 @@ fun ResetPasswordScreen(navController: NavController) {
 
             // Texto explicativo
             Text(
-                text = "Ingresa tu correo electrónico para enviar un enlace de restablecimiento",
+                text = "Revisa tu correo y escribe el código que te enviamos.",
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -84,8 +75,8 @@ fun ResetPasswordScreen(navController: NavController) {
             // Botón de Continuar
             Button(
                 onClick = {
-                    // Acción para enviar el enlace
-                    navController.navigate("reset_password_code")
+                    // Acción para verificar el código y proceder
+                    navController.navigate("reset_password_new")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
