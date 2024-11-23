@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
 import com.example.app_grupo13.ui.components.NavBar
@@ -38,109 +40,137 @@ import com.example.app_grupo13.ui.components.NavBar
 fun DashboardScreen(navController: NavController) {
     var isBalanceVisible by remember { mutableStateOf(false) }
 
-    Column(
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.fondo),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
         Column(
             modifier = Modifier
-                .weight(1f)
-                .padding(16.dp)
+                .fillMaxSize()
+                .background(Color(0x80121212)) // Semi-transparent overlay
         ) {
-            // Header
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFF8A56AC),
-                                Color(0xFF6D3989)
-                            )
-                        ),
-                        shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
-                    )
+                    .weight(1f)
                     .padding(16.dp)
             ) {
-                Column {
-                    Text("Hola,", color = Color.White, fontSize = 16.sp)
-                    Text("John Doe", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Balance
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(
+                // Header
+                Box(
                     modifier = Modifier
-                        .background(Color(0xFFEDEDED))
-                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.CenterStart
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Balance", color = Color.Black, fontSize = 16.sp)
-                        Icon(
-                            painter = painterResource(id = if (isBalanceVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off),
-                            contentDescription = if (isBalanceVisible) "Ocultar balance" else "Mostrar balance",
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable { isBalanceVisible = !isBalanceVisible },
-                            tint = Color.Black
-                        )
-                    }
-                    Text(
-                        if (isBalanceVisible) "$150,000" else "****",
-                        color = Color.Black,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        ActionIcon(R.drawable.ic_deposit, "Depositar")
-                        ActionIcon(R.drawable.ic_transfer, "Transferir")
-                        ActionIcon(R.drawable.ic_pay, "Pagar")
+                    Column {
+                        /*Image(
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = null,
+                            modifier = Modifier.size(50.dp),
+                        )*/
+                        Text("Hola,", color = Color.White, fontSize = 16.sp)
+                        Text("John Doe", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Balance
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .background(Color(0xFFEDEDED))
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Balance", color = Color.Black, fontSize = 16.sp)
+                            Icon(
+                                painter = painterResource(id = if (isBalanceVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off),
+                                contentDescription = if (isBalanceVisible) "Ocultar balance" else "Mostrar balance",
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable { isBalanceVisible = !isBalanceVisible },
+                                tint = Color.Black
+                            )
+                        }
+                        Text(
+                            if (isBalanceVisible) "$150,000" else "****",
+                            color = Color.Black,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        // Botones de acción
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            ActionIcon(R.drawable.ic_deposit, "Depositar", Color(0xFF66344A)) // Color morado
+                            ActionIcon(R.drawable.ic_transfer, "Transferir", Color(0xFFE08453)) // Color amarillo
+                            ActionIcon(R.drawable.ic_pay, "Pagar", Color(0xFFFFBC52)) // Color rojo
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text("Servicios", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                GridServices(navController)
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Text("Ofertas Especiales", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                SpecialOffers()
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text("Servicios", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            GridServices(navController)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SpecialOffers()
+            NavBar(navController = navController)
         }
-
-        NavBar(navController = navController)
     }
 }
+
 
 @Composable
-fun ActionIcon(icon: Int, text: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            painter = painterResource(id = icon),
-            contentDescription = text,
-            tint = Color.Unspecified,
-            modifier = Modifier.size(40.dp)
+fun ActionIcon(icon: Int, text: String, backgroundColor: Color = Color.Transparent) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(60.dp) // Tamaño del círculo
+                .background(color = backgroundColor, shape = CircleShape), // Fondo circular
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = text,
+                tint = Color.White, // Color del ícono
+                modifier = Modifier.size(40.dp)
+            )
+        }
+        Text(
+            text = text,
+            color = Color.Black,
+            fontSize = 14.sp
         )
-        Text(text, color = Color.Black, fontSize = 14.sp)
     }
 }
+
 
 @Composable
 fun GridServices(navController: NavController) {
@@ -151,23 +181,23 @@ fun GridServices(navController: NavController) {
         ) {
             ServiceCard("Movimientos", R.drawable.ic_movements) { navController.navigate("movements") }
             ServiceCard("Tarjetas", R.drawable.ic_cards) { navController.navigate("cards") }
-            ServiceCard("Más", R.drawable.ic_more) { navController.navigate("more") }
+            ServiceCard("Inversiones", R.drawable.ic_invest) { navController.navigate("invest") }
         }
     }
 }
-
 @Composable
 fun ServiceCard(title: String, icon: Int, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
+            .padding(8.dp) // Espaciado entre tarjetas
             .size(100.dp)
-            .padding(4.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // Elevación más destacada
     ) {
         Column(
             modifier = Modifier
+                .fillMaxSize() // Asegúrate de ocupar todo el tamaño de la tarjeta
                 .background(Color(0xFFEDEDED))
                 .padding(8.dp),
             verticalArrangement = Arrangement.Center,
@@ -177,82 +207,93 @@ fun ServiceCard(title: String, icon: Int, onClick: () -> Unit) {
                 painter = painterResource(id = icon),
                 contentDescription = title,
                 tint = Color.Unspecified,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(48.dp) // Tamaño del ícono ajustado
+                    .padding(bottom = 4.dp) // Espaciado entre el ícono y el texto
             )
-            Text(title, color = Color.Black, fontSize = 14.sp)
+            Text(
+                text = title,
+                color = Color.Black,
+                fontSize = 12.sp, // Tamaño de fuente más adecuado
+                maxLines = 1, // Evitar que el texto se desborde
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center // Centrar texto
+            )
         }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-
 @Composable
 fun SpecialOffers() {
     var currentPage by remember { mutableStateOf(0) }
+    val pagerState = rememberPagerState(pageCount = { 3 })
     val offers = listOf(
-        Offer("JUNK FOOD", "Hasta 60% de descuento", R.drawable.ic_burger, Color(0xFF8A56AC)),
-        Offer("DEPORTES", "30% de descuento", R.drawable.ic_sports, Color(0xFF56AC8A)),
-        Offer("CINE", "2x1 en entradas", R.drawable.ic_cinema, Color(0xFFAC8A56))
+        Offer("JUNK FOOD", "Hasta 60% de descuento", R.drawable.ic_burger, Color(0xFF66344A)),
+        Offer("DEPORTES", "30% de descuento", R.drawable.ic_sports, Color(0xFFE08453)),
+        Offer("CINE", "2x1 en entradas", R.drawable.ic_cinema, Color(0xFFFFBC52))
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
         HorizontalPager(
-            state = rememberPagerState { offers.size }
+            state = pagerState,
+            modifier = Modifier.height(200.dp) // Ajusta la altura del carrusel
         ) { page ->
             Card(
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp) // Added fixed height
                     .padding(horizontal = 16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxSize() // Fill the entire card
+                        .fillMaxSize()
                         .background(offers[page].backgroundColor)
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween // Space between text and image
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            offers[page].title,
+                            text = offers[page].title,
                             color = Color.White,
-                            fontSize = 24.sp, // Increased font size
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            offers[page].description,
+                            text = offers[page].description,
                             color = Color.White,
-                            fontSize = 16.sp // Increased font size
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
                     }
                     Image(
                         painter = painterResource(id = offers[page].image),
-                        contentDescription = "Oferta especial",
+                        contentDescription = null,
                         modifier = Modifier
-                            .size(120.dp) // Increased image size
-                            .padding(start = 16.dp),
-                        contentScale = ContentScale.Fit // Ensures image fits properly
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop // Asegura que la imagen se recorte adecuadamente
                     )
                 }
             }
         }
 
+        // Indicador de las páginas
         Row(
             Modifier
-                .padding(top = 8.dp)
+                .padding(top = 16.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(offers.size) { iteration ->
                 Box(
                     modifier = Modifier
-                        .padding(2.dp)
+                        .padding(4.dp)
                         .clip(CircleShape)
-                        .background(if (currentPage == iteration) Color.DarkGray else Color.LightGray)
-                        .size(8.dp)
+                        .background(if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray)
+                        .size(if (pagerState.currentPage == iteration) 12.dp else 8.dp) // Tamaño dinámico
                 )
             }
         }
