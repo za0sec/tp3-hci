@@ -38,5 +38,8 @@ fun AppNavigation() {
         composable("dashboard") { DashboardScreen(navController) }
         composable("movements") { MovementsScreen(navController) }
         composable("profile") { ProfileScreen(navController) }
+        
+
     }
 }
+
