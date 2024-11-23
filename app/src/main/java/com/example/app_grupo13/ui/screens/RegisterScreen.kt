@@ -1,29 +1,27 @@
+
 package com.example.app_grupo13.ui.screens
 
-import CustomTextField
-import PrimaryButton
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.app_grupo13.ui.theme.DarkBackground
 import com.example.app_grupo13.ui.theme.LightText
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(navController: NavController) {
     var name by remember { mutableStateOf("") }
@@ -31,20 +29,154 @@ fun RegisterScreen(navController: NavController) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DarkBackground)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = DarkBackground // Fondo oscuro
     ) {
-        Text("Crea tu cuenta", style = MaterialTheme.typography.headlineLarge, color = LightText)
-        CustomTextField("Nombre completo", name, { name = it }, Icons.Default.Person)
-        CustomTextField("Email", email, { email = it }, Icons.Default.Email)
-        CustomTextField("Contraseña", password, { password = it }, Icons.Default.Lock, isPassword = true)
-        CustomTextField("Confirmar contraseña", confirmPassword, { confirmPassword = it }, Icons.Default.Lock, isPassword = true)
-        PrimaryButton("Continuar") {
-            // Lógica de registro
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center // Centrar contenido verticalmente
+        ) {
+            // Título
+            Text(
+                text = "Creá tu cuenta",
+                color = LightText,
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Campo de Nombre
+            TextField(
+                value = name,
+                onValueChange = { name = it },
+                singleLine = true,
+                label = { Text("Nombre completo", color = Color.Gray) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Nombre completo",
+                        tint = Color(0xFF9C8AE0)
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color(0xFF9C8AE0),
+                    unfocusedIndicatorColor = Color.Gray,
+                    containerColor = Color(0xFF1C1C1C),
+                    cursorColor = Color(0xFF9C8AE0)
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de Email
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                singleLine = true,
+                label = { Text("Email", color = Color.Gray) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = "Email",
+                        tint = Color(0xFF9C8AE0)
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color(0xFF9C8AE0),
+                    unfocusedIndicatorColor = Color.Gray,
+                    containerColor = Color(0xFF1C1C1C),
+                    cursorColor = Color(0xFF9C8AE0)
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de Contraseña
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                singleLine = true,
+                label = { Text("Contraseña", color = Color.Gray) },
+                visualTransformation = PasswordVisualTransformation(),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Contraseña",
+                        tint = Color(0xFF9C8AE0)
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color(0xFF9C8AE0),
+                    unfocusedIndicatorColor = Color.Gray,
+                    containerColor = Color(0xFF1C1C1C),
+                    cursorColor = Color(0xFF9C8AE0)
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de Confirmar Contraseña
+            TextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                singleLine = true,
+                label = { Text("Confirmar contraseña", color = Color.Gray) },
+                visualTransformation = PasswordVisualTransformation(),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Confirmar contraseña",
+                        tint = Color(0xFF9C8AE0)
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color(0xFF9C8AE0),
+                    unfocusedIndicatorColor = Color.Gray,
+                    containerColor = Color(0xFF1C1C1C),
+                    cursorColor = Color(0xFF9C8AE0)
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+
+            Spacer(modifier = Modifier.height(120.dp))
+
+            // Botón de Continuar
+            Button(
+                onClick = { navController.navigate("dashboard") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF7059AB)
+                ),
+
+                ) {
+                Text(
+                    text = "Continuar",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
+
