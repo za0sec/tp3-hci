@@ -21,10 +21,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.LaunchedEffect
+import com.example.app_grupo13.ui.viewmodels.LoginViewModel
+import com.example.app_grupo13.ui.viewmodels.LoginViewModelFactory
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = viewModel(
+        factory = LoginViewModelFactory(LocalContext.current)
+    )
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordHidden by remember { mutableStateOf(true) }
@@ -109,7 +121,6 @@ fun LoginScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Recuperar contraseña
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -133,21 +144,46 @@ fun LoginScreen(navController: NavController) {
 
             // Botón de Continuar
             Button(
-                onClick = { navController.navigate("dashboard") },
+                onClick = { 
+                    Log.d("LoginScreen", "Login button clicked with email: $email")
+                    viewModel.loginUser(email, password)
+                },
+                enabled = !viewModel.isLoading.value,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF7059AB)
                 ),
-
             ) {
-                Text(
-                    text = "Continuar",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                if (viewModel.isLoading.value) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text(
+                        text = "Continuar",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+
+    // Add this to observe login result
+    LaunchedEffect(viewModel.loginResult.value) {
+        Log.d("LoginScreen", "LoginResult changed: ${viewModel.loginResult.value}")
+        viewModel.loginResult.value?.let { success ->
+            if (success) {
+                Log.d("LoginScreen", "Login successful, navigating to dashboard")
+                navController.navigate("dashboard") {
+                    popUpTo("login") { inclusive = true }
+                }
+            } else {
+                Log.d("LoginScreen", "Login failed")
             }
         }
     }
