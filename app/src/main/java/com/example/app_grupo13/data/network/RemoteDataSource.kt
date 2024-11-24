@@ -6,8 +6,10 @@ import com.example.app_grupo13.data.model.Balance
 import com.example.app_grupo13.data.model.LoginData
 import com.example.app_grupo13.data.model.LoginResponse
 import com.example.app_grupo13.data.model.RegistrationData
+import com.example.app_grupo13.data.model.UpdateAliasRequest
 import com.example.app_grupo13.data.model.User
 import com.example.app_grupo13.data.model.VerifyData
+import com.example.app_grupo13.data.model.WalletDetails
 import com.example.app_grupo13.data.network.api.WalletApiService
 import com.example.app_grupo13.data.network.model.NetworkCard
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -39,11 +41,41 @@ class RemoteDataSource(private val context: Context) {
 
     private val walletApiService: WalletApiService = retrofit.create(WalletApiService::class.java)
 
-    suspend fun fetchCards() = walletApiService.getCards()
+    suspend fun fetchCards(): Response<List<NetworkCard>> {
+        return try {
+            Log.d("RemoteDataSource", "Fetching cards...")
+            val response = walletApiService.getCards()
+            Log.d("RemoteDataSource", "Cards response: ${response.body()}")
+            response
+        } catch (e: Exception) {
+            Log.e("RemoteDataSource", "Error fetching cards", e)
+            throw e
+        }
+    }
 
-    suspend fun addCard(networkCard: NetworkCard) = walletApiService.addCard(networkCard)
+    suspend fun addCard(card: NetworkCard): Response<NetworkCard> {
+        return try {
+            Log.d("RemoteDataSource", "Adding card: $card")
+            val response = walletApiService.addCard(card)
+            Log.d("RemoteDataSource", "Add card response: ${response.body()}")
+            response
+        } catch (e: Exception) {
+            Log.e("RemoteDataSource", "Error adding card", e)
+            throw e
+        }
+    }
 
-    suspend fun deleteCard(cardId: Int) = walletApiService.deleteCard(cardId)
+    suspend fun deleteCard(cardId: Int): Response<Unit> {
+        return try {
+            Log.d("RemoteDataSource", "Deleting card with ID: $cardId")
+            val response = walletApiService.deleteCard(cardId)
+            Log.d("RemoteDataSource", "Delete card response code: ${response.code()}")
+            response
+        } catch (e: Exception) {
+            Log.e("RemoteDataSource", "Error deleting card", e)
+            throw e
+        }
+    }
 
     suspend fun registerUser(registrationData: RegistrationData) {
         val jsonString = json.encodeToString(registrationData)
@@ -85,5 +117,30 @@ class RemoteDataSource(private val context: Context) {
 
     suspend fun getBalance(): Response<Balance> {
         return walletApiService.getBalance()
+    }
+
+    suspend fun getWalletDetails(): Response<WalletDetails> {
+        return try {
+            Log.d("RemoteDataSource", "Fetching wallet details...")
+            val response = walletApiService.getWalletDetails()
+            Log.d("RemoteDataSource", "Wallet details response: ${response.body()}")
+            response
+        } catch (e: Exception) {
+            Log.e("RemoteDataSource", "Error fetching wallet details", e)
+            throw e
+        }
+    }
+
+    suspend fun updateAlias(newAlias: String): Response<WalletDetails> {
+        return try {
+            Log.d("RemoteDataSource", "Updating alias to: $newAlias")
+            val request = UpdateAliasRequest(alias = newAlias)
+            val response = walletApiService.updateAlias(request)
+            Log.d("RemoteDataSource", "Update alias response: ${response.body()}")
+            response
+        } catch (e: Exception) {
+            Log.e("RemoteDataSource", "Error updating alias", e)
+            throw e
+        }
     }
 }

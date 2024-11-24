@@ -4,16 +4,16 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.app_grupo13.data.network.RemoteDataSource
-import com.example.app_grupo13.data.repository.UserRepository
+import com.example.app_grupo13.data.repository.CardRepository
 
-class DashboardViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class CardsViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(DashboardViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(CardsViewModel::class.java)) {
             val remoteDataSource = RemoteDataSource(context)
-            val userRepository = UserRepository(remoteDataSource)
+            val repository = CardRepository(remoteDataSource)
             @Suppress("UNCHECKED_CAST")
-            return DashboardViewModel(userRepository) as T
+            return CardsViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
-}
+} 

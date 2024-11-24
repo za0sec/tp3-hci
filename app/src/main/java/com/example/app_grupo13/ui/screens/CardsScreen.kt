@@ -1,5 +1,6 @@
 package com.example.app_grupo13.ui.screens
 
+import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -17,22 +18,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
-import java.time.LocalDate
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.text.TextRange
+import com.example.app_grupo13.data.model.Card
+import com.example.app_grupo13.data.model.CardType
+import com.example.app_grupo13.ui.viewmodels.CardsViewModel
+import com.example.app_grupo13.ui.viewmodels.CardsViewModelFactory
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardsScreen(navController: NavController) {
+fun CardsScreen(
+    navController: NavController,
+    context: Context = LocalContext.current,
+    viewModel: CardsViewModel = viewModel(factory = CardsViewModelFactory(context))
+) {
     var showDialog by remember { mutableStateOf(false) }
-    val cardList = remember { mutableStateListOf<CardData>() }
+    val cards by viewModel.cards.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadCards()
+    }
 
     Column(
         modifier = Modifier
@@ -54,14 +69,45 @@ fun CardsScreen(navController: NavController) {
             )
         }
 
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF7059AB))
+            }
+        }
+
+        error?.let { errorMsg ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = errorMsg,
+                    color = Color.Red,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
         // Lista de tarjetas
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(16.dp)
         ) {
-            items(cardList) { card ->
-                CardItem(card = card, onDelete = { cardList.remove(card) })
+            items(cards) { card ->
+                CardItem(
+                    card = card,
+                    onDelete = { 
+                        scope.launch {
+                            viewModel.deleteCard(card.id!!)
+                        }
+                    }
+                )
             }
         }
 
@@ -83,179 +129,47 @@ fun CardsScreen(navController: NavController) {
 
     // Diálogo para agregar tarjeta
     if (showDialog) {
-        AddCardDialog(onDismiss = { showDialog = false }) { newCard ->
-            cardList.add(newCard)
-            showDialog = false
+        AddCardDialog(
+            onDismiss = { showDialog = false }
+        ) { cardData ->
+            scope.launch {
+                val newCard = Card(
+                    number = cardData.cardNumber.replace(" ", ""),
+                    fullName = cardData.cardHolder,
+                    expirationDate = cardData.expiryDate,
+                    cvv = cardData.cvv,
+                    type = CardType.CREDIT
+                )
+                if (viewModel.addCard(newCard)) {
+                    showDialog = false
+                }
+            }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCardDialog(onDismiss: () -> Unit, onAddCard: (CardData) -> Unit) {
-    var cardNumber by remember { mutableStateOf(TextFieldValue("")) }
-    var cardNumberError by remember { mutableStateOf(false) }
-    var cardHolder by remember { mutableStateOf("") }
-    var expiryDate by remember { mutableStateOf(TextFieldValue("")) }
-    var expiryDateError by remember { mutableStateOf("") }
-    var securityCode by remember { mutableStateOf("") }
-    var isExpired by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = { onDismiss() },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (cardNumber.text.isNotEmpty() && !cardNumberError &&
-                        expiryDate.text.length == 5 && expiryDateError.isEmpty() && !isExpired &&
-                        cardHolder.isNotEmpty() && securityCode.isNotEmpty()
-                    ) {
-                        onAddCard(CardData(cardNumber.text, cardHolder, expiryDate.text, securityCode))
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
-            ) {
-                Text(text = "Guardar tarjeta", color = Color.White)
-            }
-        },
-        title = { Text(text = "Agregar tarjeta", color = Color.White) },
-        text = {
-            Column {
-                // Campo del número de tarjeta
-                TextField(
-                    value = cardNumber,
-                    onValueChange = { input ->
-                        val rawInput = input.text.replace(" ", "")
-                        if (rawInput.length <= 16) { // Límite de 16 dígitos
-                            cardNumberError = !rawInput.all { it.isDigit() }
-                            if (!cardNumberError) {
-                                val formatted = rawInput.chunked(4).joinToString(" ")
-                                val cursorPosition = input.selection.start
-                                val newCursorPosition = cursorPosition + (formatted.length - input.text.length)
-                                cardNumber = TextFieldValue(formatted, TextRange(newCursorPosition))
-                            } else {
-                                cardNumber = input
-                            }
-                        }
-                    },
-                    label = { Text("Número de tarjeta", color = Color.Gray) },
-                    isError = cardNumberError,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (cardNumberError) {
-                    Text(
-                        text = "Ingrese un número de tarjeta válido",
-                        color = Color.Red,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Titular de la cuenta
-                TextField(
-                    value = cardHolder,
-                    onValueChange = { cardHolder = it },
-                    label = { Text("Titular de la cuenta", color = Color.Gray) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Fecha de vencimiento
-                TextField(
-                    value = expiryDate,
-                    onValueChange = { input ->
-                        val rawInput = input.text.replace("/", "")
-                        if (rawInput.length <= 4) { // Límite de 4 caracteres para MM/AA
-                            val formatted = when {
-                                rawInput.length > 2 -> rawInput.substring(0, 2) + "/" + rawInput.substring(2)
-                                else -> rawInput
-                            }
-                            expiryDate = TextFieldValue(formatted, TextRange(formatted.length))
-
-                            // Validación del mes
-                            val month = if (rawInput.length >= 2) rawInput.substring(0, 2).toIntOrNull() else null
-                            val year = if (rawInput.length == 4) rawInput.substring(2, 4).toIntOrNull() else null
-
-                            expiryDateError = when {
-                                month == null || month !in 1..12 -> if (rawInput.length >= 2) "Mes inválido" else ""
-                                else -> ""
-                            }
-
-                            // Validación de vencimiento (solo si el formato está completo)
-                            if (month != null && year != null && rawInput.length == 4) {
-                                val fullYear = 2000 + year
-                                isExpired = fullYear < LocalDate.now().year ||
-                                        (fullYear == LocalDate.now().year && month < LocalDate.now().monthValue)
-                            } else {
-                                isExpired = false
-                            }
-                        }
-                    },
-                    label = { Text("Fecha de vencimiento mm/aa", color = Color.Gray) },
-                    isError = expiryDateError.isNotEmpty() || isExpired,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (expiryDateError.isNotEmpty()) {
-                    Text(
-                        text = expiryDateError,
-                        color = Color.Red,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                if (isExpired) {
-                    Text(
-                        text = "La tarjeta está vencida",
-                        color = Color.Red,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Código de seguridad
-                TextField(
-                    value = securityCode,
-                    onValueChange = {
-                        if (it.length <= 3) securityCode = it
-                    },
-                    label = { Text("Código de seguridad", color = Color.Gray) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-    )
-}
-
-@Composable
-fun CardItem(card: CardData, onDelete: () -> Unit) {
+fun CardItem(card: Card, onDelete: () -> Unit) {
     var isFlipped by remember { mutableStateOf(false) }
     val rotation = remember { Animatable(0f) }
 
     LaunchedEffect(isFlipped) {
-        val targetRotation = if (isFlipped) 180f else 0f
-        rotation.animateTo(targetRotation, animationSpec = tween(durationMillis = 600))
+        rotation.animateTo(
+            targetValue = if (isFlipped) 180f else 0f,
+            animationSpec = tween(durationMillis = 400)
+        )
     }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .height(200.dp)
             .padding(8.dp)
             .clickable { isFlipped = !isFlipped }
             .graphicsLayer {
                 rotationY = rotation.value
                 cameraDistance = 12f * density
-            },
-        contentAlignment = Alignment.Center
+            }
     ) {
         if (rotation.value <= 90f) {
             FrontCardContent(card = card, onDelete = onDelete)
@@ -266,95 +180,229 @@ fun CardItem(card: CardData, onDelete: () -> Unit) {
 }
 
 @Composable
-fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
+fun FrontCardContent(card: Card, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxSize(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Box(
-            modifier = Modifier.background(
-                Brush.linearGradient(
-                    colors = listOf(Color(0xFF8E24AA), Color(0xFFC980D5))
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(Color(0xFF8E24AA), Color(0xFFC980D5))
+                    )
                 )
-            )
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
+            Column {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo Plum",
-                        tint = Color.White,
-                        modifier = Modifier.size(48.dp)
+                    Text(
+                        text = card.type.name,
+                        color = Color.White,
+                        fontSize = 14.sp
                     )
-                    Row {
-                        Text(
-                            text = card.expiryDate,
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = "Eliminar tarjeta",
-                            tint = Color.Red,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clickable { onDelete() } // Acción para eliminar tarjeta
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = "Eliminar tarjeta",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onDelete() }
+                    )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = card.cardNumber, color = Color.White, fontSize = 20.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = card.cardHolder, color = Color.White, fontSize = 16.sp)
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Text(
+                    text = card.number.chunked(4).joinToString(" "),
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = card.fullName,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = card.expirationDate,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun BackCardContent(card: CardData) {
+fun BackCardContent(card: Card) {
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .graphicsLayer {
-                rotationY = 180f // Invertimos el contenido del reverso
-            },
+            .graphicsLayer { rotationY = 180f },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Box(
-            modifier = Modifier.background(
-                Brush.linearGradient(
-                    colors = listOf(Color(0xFF8E24AA), Color(0xFFC980D5))
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(Color(0xFF8E24AA), Color(0xFFC980D5))
+                    )
                 )
-            )
+                .padding(16.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Código de seguridad (CVV): ${card.cvv}",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .background(Color.Black.copy(alpha = 0.3f))
                 )
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                card.cvv?.let { cvv ->
+                    Text(
+                        text = "CVV: $cvv",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddCardDialog(
+    onDismiss: () -> Unit,
+    onAddCard: (CardData) -> Unit
+) {
+    var cardNumber by remember { mutableStateOf("") }
+    var cardHolder by remember { mutableStateOf("") }
+    var expiryDate by remember { mutableStateOf("") }
+    var cvv by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Agregar Tarjeta") },
+        text = {
+            Column {
+                TextField(
+                    value = cardNumber,
+                    onValueChange = { 
+                        if (it.length <= 19) { // 16 dígitos + 3 espacios
+                            cardNumber = formatCardNumber(it)
+                        }
+                    },
+                    label = { Text("Número de Tarjeta") },
+                    singleLine = true
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                TextField(
+                    value = cardHolder,
+                    onValueChange = { cardHolder = it },
+                    label = { Text("Titular de la Tarjeta") },
+                    singleLine = true
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Row {
+                    TextField(
+                        value = expiryDate,
+                        onValueChange = { 
+                            if (it.length <= 5) {
+                                expiryDate = formatExpiryDate(it)
+                            }
+                        },
+                        label = { Text("MM/YY") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
+                    )
+                    
+                    Spacer(modifier = Modifier.width(8.dp))
+                    
+                    TextField(
+                        value = cvv,
+                        onValueChange = { 
+                            if (it.length <= 3) {
+                                cvv = it.filter { char -> char.isDigit() }
+                            }
+                        },
+                        label = { Text("CVV") },
+                        modifier = Modifier.width(100.dp),
+                        singleLine = true
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (isValidCard(cardNumber, cardHolder, expiryDate, cvv)) {
+                        onAddCard(CardData(cardNumber, cardHolder, expiryDate, cvv))
+                    }
+                }
+            ) {
+                Text("Agregar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+private fun formatCardNumber(input: String): String {
+    val digitsOnly = input.filter { it.isDigit() }
+    return digitsOnly.chunked(4).joinToString(" ")
+}
+
+private fun formatExpiryDate(input: String): String {
+    val digitsOnly = input.filter { it.isDigit() }
+    return when {
+        digitsOnly.length >= 2 -> "${digitsOnly.take(2)}/${digitsOnly.drop(2)}"
+        else -> digitsOnly
+    }
+}
+
+private fun isValidCard(
+    cardNumber: String,
+    cardHolder: String,
+    expiryDate: String,
+    cvv: String
+): Boolean {
+    val digitsOnly = cardNumber.filter { it.isDigit() }
+    return digitsOnly.length == 16 &&
+            cardHolder.isNotBlank() &&
+            expiryDate.length == 5 &&
+            cvv.length == 3
 }
 
 data class CardData(
