@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import com.example.app_grupo13.ui.screens.CardsScreen
 import com.example.app_grupo13.ui.screens.WelcomeScreen
 import com.example.app_grupo13.ui.screens.RegisterScreen
 import com.example.app_grupo13.ui.screens.LoginScreen
@@ -242,5 +243,6 @@ fun AppNavigation(userViewModel: UserViewModel) {
         composable("deposit") { DepositScreen(navController) }
         composable("transfer") { TransferScreen(navController) }
         composable("pay") { PayScreen(navController) }
+        composable("cards"){CardsScreen(navController)}
     }
 }
