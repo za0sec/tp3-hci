@@ -65,6 +65,7 @@ import androidx.camera.video.QualitySelector
 import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.PermissionChecker
 import com.example.app_grupo13.databinding.ActivityMainBinding
+import com.example.app_grupo13.ui.screens.InvestmentScreen
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -244,5 +245,6 @@ fun AppNavigation(userViewModel: UserViewModel) {
         composable("transfer") { TransferScreen(navController) }
         composable("pay") { PayScreen(navController) }
         composable("cards"){CardsScreen(navController)}
+        composable("invest"){InvestmentScreen(navController)}
     }
 }
