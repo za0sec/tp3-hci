@@ -318,13 +318,12 @@ fun CardItem(card: CardData, onDeleteRequest: (CardData) -> Unit) {
 }
 
 
-
 @Composable
 fun FrontCardContent(card: CardData, onDeleteRequest: (CardData) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp),
+            .height(180.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -346,28 +345,41 @@ fun FrontCardContent(card: CardData, onDeleteRequest: (CardData) -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    // Logo a la izquierda
                     Icon(
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "Logo Plum",
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(65.dp),
                         tint = Color.Unspecified
                     )
-                    Row {
+                    // Fecha y titular alineados a la derecha
+                    Column(
+                        horizontalAlignment = Alignment.End, // Alinear a la derecha
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Text(
                             text = card.expiryDate,
                             color = Color.White,
                             fontSize = 14.sp
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_delete),
-                            contentDescription = "Eliminar tarjeta",
-                            tint = Color.Red,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clickable { onDeleteRequest(card) }
+                        Text(
+                            text = card.cardHolder,
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
+                    // Icono de borrar
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = "Eliminar tarjeta",
+                        tint = Color.Red,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onDeleteRequest(card) }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -380,23 +392,12 @@ fun FrontCardContent(card: CardData, onDeleteRequest: (CardData) -> Unit) {
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = card.cardHolder,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                )
             }
         }
     }
 }
+
+
 
 
 
