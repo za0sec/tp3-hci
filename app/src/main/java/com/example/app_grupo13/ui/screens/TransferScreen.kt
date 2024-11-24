@@ -75,6 +75,8 @@ fun TransferScreen(navController: NavController) {
             }
         }
 
+        Spacer(modifier = Modifier.height(200.dp)) // Espaciado entre la flecha y el título
+
         // Título
         Box(
             modifier = Modifier

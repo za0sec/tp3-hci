@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,6 +43,24 @@ fun InvestmentScreen(navController: NavController) {
             .background(Color(0xFF17171F))
             .padding(16.dp)
     ) {
+        // Flecha de regreso
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.wrapContentSize()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back Arrow",
+                    tint = Color.White
+                )
+            }
+        }
         // Encabezado
         Text(
             text = "Inversiones Activas",
@@ -48,7 +68,7 @@ fun InvestmentScreen(navController: NavController) {
             fontSize = 28.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Mostrar balance y retorno total
         BalanceCard(availableBalance = availableBalance, totalInvested = totalInvested, totalReturn = totalReturn)

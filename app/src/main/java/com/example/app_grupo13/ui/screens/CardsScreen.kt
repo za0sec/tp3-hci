@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,12 +35,32 @@ import androidx.compose.ui.text.style.TextOverflow
 fun CardsScreen(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     val cardList = remember { mutableStateListOf<CardData>() }
+    var cardToDelete by remember { mutableStateOf<CardData?>(null) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF17171F))
     ) {
+        // Flecha de regreso
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.wrapContentSize()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back Arrow",
+                    tint = Color.White
+                )
+            }
+        }
+
         // Encabezado
         Box(
             modifier = Modifier
@@ -62,7 +83,7 @@ fun CardsScreen(navController: NavController) {
             contentPadding = PaddingValues(16.dp)
         ) {
             items(cardList) { card ->
-                CardItem(card = card, onDelete = { cardList.remove(card) })
+                CardItem(card = card, onDeleteRequest = { cardToDelete = it })
             }
         }
 
@@ -89,6 +110,36 @@ fun CardsScreen(navController: NavController) {
             showDialog = false
         }
     }
+    // Diálogo de confirmación para eliminar tarjeta
+    if (cardToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { cardToDelete = null },
+            title = { Text("Eliminar tarjeta", color = Color.White) },
+            text = { Text("¿Estás seguro de que deseas eliminar esta tarjeta?", color = Color.Gray) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        cardList.remove(cardToDelete)
+                        cardToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Eliminar", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { cardToDelete = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                ) {
+                    Text("Cancelar", color = Color.White)
+                }
+            },
+            containerColor = Color(0xFF2C2C2E),
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -237,7 +288,7 @@ fun AddCardDialog(onDismiss: () -> Unit, onAddCard: (CardData) -> Unit) {
 }
 
 @Composable
-fun CardItem(card: CardData, onDelete: () -> Unit) {
+fun CardItem(card: CardData, onDeleteRequest: (CardData) -> Unit) {
     var isFlipped by remember { mutableStateOf(false) }
     val rotation = remember { Animatable(0f) }
 
@@ -259,17 +310,20 @@ fun CardItem(card: CardData, onDelete: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         if (rotation.value <= 90f) {
-            FrontCardContent(card = card, onDelete = onDelete)
+            FrontCardContent(card = card, onDeleteRequest = onDeleteRequest)
         } else {
             BackCardContent(card = card)
         }
     }
 }
 
+
+
 @Composable
-fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
+fun FrontCardContent(card: CardData, onDeleteRequest: (CardData) -> Unit) {
     Card(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
             .height(150.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -286,7 +340,7 @@ fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween // Distribuye mejor el contenido
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -297,7 +351,6 @@ fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
                         contentDescription = "Logo Plum",
                         modifier = Modifier.size(48.dp),
                         tint = Color.Unspecified
-
                     )
                     Row {
                         Text(
@@ -312,7 +365,7 @@ fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
                             tint = Color.Red,
                             modifier = Modifier
                                 .size(24.dp)
-                                .clickable { onDelete() }
+                                .clickable { onDeleteRequest(card) }
                         )
                     }
                 }
@@ -333,17 +386,18 @@ fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
                 Text(
                     text = card.cardHolder,
                     color = Color.White,
-                    fontSize = 16.sp, // Ajustamos el tamaño
-                    maxLines = 1, // Limitar a una línea
-                    overflow = TextOverflow.Ellipsis, // Manejar texto largo
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp) // Añadimos márgenes
+                        .padding(horizontal = 8.dp)
                 )
             }
         }
     }
 }
+
 
 
 @Composable
