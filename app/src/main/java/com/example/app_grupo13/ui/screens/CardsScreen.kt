@@ -27,6 +27,7 @@ import com.example.app_grupo13.R
 import java.time.LocalDate
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.TextOverflow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -268,7 +269,8 @@ fun CardItem(card: CardData, onDelete: () -> Unit) {
 @Composable
 fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .height(150.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -283,7 +285,8 @@ fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween // Distribuye mejor el contenido
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -292,8 +295,9 @@ fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
                     Icon(
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "Logo Plum",
-                        tint = Color.White,
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(48.dp),
+                        tint = Color.Unspecified
+
                     )
                     Row {
                         Text(
@@ -308,18 +312,39 @@ fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
                             tint = Color.Red,
                             modifier = Modifier
                                 .size(24.dp)
-                                .clickable { onDelete() } // Acción para eliminar tarjeta
+                                .clickable { onDelete() }
                         )
                     }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = card.cardNumber, color = Color.White, fontSize = 20.sp)
+
+                Text(
+                    text = card.cardNumber,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = card.cardHolder, color = Color.White, fontSize = 16.sp)
+
+                Text(
+                    text = card.cardHolder,
+                    color = Color.White,
+                    fontSize = 16.sp, // Ajustamos el tamaño
+                    maxLines = 1, // Limitar a una línea
+                    overflow = TextOverflow.Ellipsis, // Manejar texto largo
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp) // Añadimos márgenes
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun BackCardContent(card: CardData) {
@@ -363,3 +388,4 @@ data class CardData(
     val expiryDate: String,
     val cvv: String
 )
+
