@@ -246,5 +246,6 @@ fun AppNavigation(userViewModel: UserViewModel) {
         composable("pay") { PayScreen(navController) }
         composable("cards"){CardsScreen(navController)}
         composable("invest"){InvestmentScreen(navController)}
+
     }
 }
