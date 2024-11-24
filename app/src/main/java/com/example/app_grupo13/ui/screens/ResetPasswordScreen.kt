@@ -3,6 +3,7 @@ package com.example.app_grupo13.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,9 +29,29 @@ fun ResetPasswordScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Centrar contenido verticalmente
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top // Centrar contenido verticalmente
         ) {
+            // Flecha de regreso
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.wrapContentSize()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back Arrow",
+                        tint = Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(200.dp)) // Espaciado entre la flecha y el título
             // Título
             Text(
                 text = "Recuperar contraseña",
@@ -102,6 +123,7 @@ fun ResetPasswordScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
