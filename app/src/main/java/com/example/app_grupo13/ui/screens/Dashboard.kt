@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -80,6 +81,16 @@ fun DashboardScreen(navController: NavController) {
                         Text("Hola,", color = Color.White, fontSize = 16.sp)
                         Text("John Doe", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     }
+                    IconButton(
+                        onClick = { /* Navegar a la pantalla de ajustes */ },
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Ajustes",
+                            tint = Color.White
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -125,7 +136,7 @@ fun DashboardScreen(navController: NavController) {
                             ActionIcon(R.drawable.ic_deposit, "Depositar", Color(0xFF66344A), onClick = { navController.navigate("deposit") }) // Color morado
                              // Color morado
                             ActionIcon(R.drawable.ic_transfer, "Transferir", Color(0xFFE08453), onClick = { navController.navigate("transfer")}) // Color amarillo
-                            ActionIcon(R.drawable.ic_pay, "Pagar", Color(0xFFFFBC52), onClick = { navController.navigate("pay")}) // Color rojo
+                            ActionIcon(R.drawable.ic_qr, "Pagar", Color(0xFFFFBC52), onClick = { navController.navigate("pay")}) // Color rojo
                         }
                     }
                 }
