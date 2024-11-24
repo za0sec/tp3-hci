@@ -11,23 +11,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.app_grupo13.R
 import java.text.NumberFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestmentScreen(navController: NavController) {
-    var availableBalance by remember { mutableStateOf(10000.00) } // Dinero disponible
-    var totalInvested by remember { mutableStateOf(0.00) } // Total invertido
-    var totalReturn by remember { mutableStateOf(0.00) } // Retorno total
+    var availableBalance by remember { mutableStateOf(10000.00) } // TODO: que sea el balance de dashboard
+    var totalInvested by remember { mutableStateOf(0.00) }
+    var totalReturn by remember { mutableStateOf(0.00) }
     var inputAmount by remember { mutableStateOf("") }
-    var selectedInvestmentType by remember { mutableStateOf("Crypto") } // Tipo de inversión seleccionado
-    var showTypeDialog by remember { mutableStateOf(false) } // Mostrar diálogo para seleccionar tipo
-    var showConfirmDialog by remember { mutableStateOf(false) } // Mostrar diálogo de confirmación
+    var showError by remember { mutableStateOf(false) } // Mostrar error de fondos insuficientes
+    var selectedInvestmentType by remember { mutableStateOf("Crypto") }
+    var showTypeDialog by remember { mutableStateOf(false) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     // Lista de inversiones activas
     val investments = remember { mutableStateListOf<Investment>() }
@@ -56,16 +59,32 @@ fun InvestmentScreen(navController: NavController) {
         TextField(
             value = inputAmount,
             onValueChange = {
-                if (it.isEmpty() || it.matches(Regex("^[0-9]*\\.?[0-9]*\$"))) inputAmount = it
+                if (it.isEmpty() || it.matches(Regex("^[0-9]*\\.?[0-9]*\$"))) {
+                    inputAmount = it
+                    showError = it.toDoubleOrNull() ?: 0.0 > availableBalance // Mostrar error si el monto supera el balance
+                }
             },
             label = { Text(text = "Monto a invertir", color = Color.Gray) },
             singleLine = true,
+            isError = showError, // Cambiar a rojo si hay un error
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color(0xFF1C1C1E),
-                focusedIndicatorColor = Color(0xFF7059AB)
+                focusedIndicatorColor = if (showError) Color.Red else Color(0xFF7059AB),
+                unfocusedIndicatorColor = if (showError) Color.Red else Color.Gray
             ),
             modifier = Modifier.fillMaxWidth()
         )
+
+        // Mostrar mensaje de error si los fondos son insuficientes
+        if (showError) {
+            Text(
+                text = "Fondos insuficientes",
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(
@@ -75,7 +94,8 @@ fun InvestmentScreen(navController: NavController) {
             Button(
                 onClick = { showTypeDialog = true }, // Mostrar diálogo de selección de tipo
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !showError && inputAmount.isNotEmpty() && inputAmount.toDoubleOrNull() != null
             ) {
                 Text(text = "Seleccionar Tipo e Invertir", color = Color.White)
             }
@@ -191,6 +211,21 @@ fun InvestmentTypeOption(
             .clickable { onSelect(type) }
             .padding(8.dp)
     ) {
+        // Icono correspondiente
+        val icon = when (type) {
+            "Crypto" -> R.drawable.ic_bitcoin
+            "Acciones" -> R.drawable.ic_chart
+            "Bonos" -> R.drawable.ic_bank
+            else -> null
+        }
+        icon?.let {
+            Icon(
+                painter = painterResource(id = it),
+                contentDescription = type,
+                tint = Color.White,
+                modifier = Modifier.size(24.dp).padding(end = 8.dp)
+            )
+        }
         RadioButton(
             selected = type == selectedType,
             onClick = { onSelect(type) },
@@ -236,18 +271,35 @@ fun InvestmentCard(investment: Investment, onWithdraw: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(text = investment.type, color = Color.White, fontSize = 16.sp)
-                Text(
-                    text = "Monto: ${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.amount)}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = "Rendimiento Diario: ${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.dailyReturn)}",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                val icon = when (investment.type) {
+                    "Inversión en Crypto" -> R.drawable.ic_bitcoin
+                    "Inversión en Acciones" -> R.drawable.ic_chart
+                    "Inversión en Bonos" -> R.drawable.ic_bank
+                    else -> null
+                }
+                icon?.let {
+                    Icon(
+                        painter = painterResource(id = it),
+                        contentDescription = investment.type,
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp).padding(end = 8.dp)
+                    )
+                }
+                Column {
+                    Text(text = investment.type, color = Color.White, fontSize = 16.sp)
+                    Text(
+                        text = "Monto: ${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.amount)}",
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = "Rendimiento Diario: ${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.dailyReturn)}",
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+                }
             }
             Button(
                 onClick = onWithdraw,
