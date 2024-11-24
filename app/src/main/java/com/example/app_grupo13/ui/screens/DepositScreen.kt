@@ -47,11 +47,14 @@ import com.example.app_grupo13.R
 import com.example.app_grupo13.ui.components.NavBar
 import com.example.app_grupo13.ui.theme.PurplePrimary
 import kotlin.coroutines.coroutineContext
+import androidx.compose.material3.AlertDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DepositScreen(navController: NavController) {
-    val context = LocalContext.current // Obtén el contexto dentro de un composable
+    var amount by remember { mutableStateOf("") }
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -59,7 +62,7 @@ fun DepositScreen(navController: NavController) {
             .background(Color(0xFF17171F))
             .padding(16.dp)
     ) {
-        // Caja donde irá la flecha de regreso
+        // Flecha de regreso
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,6 +80,8 @@ fun DepositScreen(navController: NavController) {
                 )
             }
         }
+
+        // Título
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -92,80 +97,111 @@ fun DepositScreen(navController: NavController) {
             )
         }
 
-        var amount by remember { mutableStateOf("") }
-        // Cuánto deseas depositar y textArea
+        // Campo para ingresar el monto
         TextField(
             value = amount,
             onValueChange = { amount = it },
             label = { Text("Ingresar monto", color = Color.Gray) },
             leadingIcon = {
                 Icon(
-                    modifier = Modifier.size(24.dp),
                     painter = painterResource(R.drawable.ic_deposit),
-                    contentDescription = "Person Icon",
-                    tint = Color(0xFF9C8AE0)
+                    contentDescription = "Deposit Icon",
+                    tint = Color(0xFF9C8AE0),
+                    modifier = Modifier.size(24.dp)
                 )
             },
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color(0xFF1C1C1E),
+                focusedIndicatorColor = Color(0xFF9C8AE0)
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
         )
 
-        var errorMessage by remember { mutableStateOf("") }
-
         // Mensaje de error
-        Text(
-            text = errorMessage,
-            color = Color.Red,
-            fontSize = 17.sp
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
 
         // Botón de depositar
         Button(
             onClick = {
-                errorMessage = validateMoneyError(amount, context, navController)
-
+                val validationResult = validateDepositInput(amount)
+                if (validationResult.isEmpty()) {
+                    showConfirmDialog = true
+                } else {
+                    errorMessage = validationResult
+                }
             },
-            colors = ButtonDefaults.buttonColors(Color(0xFF9C8AE0)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C8AE0)),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(top = 16.dp)
         ) {
-            Text(
-                text = "Depositar",
-                color = Color.White,
-                fontSize = 16.sp
-            )
+            Text(text = "Depositar", color = Color.White, fontSize = 16.sp)
         }
+    }
+
+    // Diálogo de confirmación
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text(text = "Confirmar Depósito", color = Color.White) },
+            text = {
+                Column {
+                    Text(
+                        text = "¿Estás seguro de depositar $$amount?",
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_deposit),
+                        contentDescription = null,
+                        tint = Color(0xFF9C8AE0),
+                        modifier = Modifier.size(48.dp).align(Alignment.CenterHorizontally)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        depositMoney(amount.toInt(), navController)
+                        showConfirmDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB))
+                ) {
+                    Text("Confirmar", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showConfirmDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Cancelar", color = Color.White)
+                }
+            },
+            containerColor = Color(0xFF2C2C2E),
+            shape = RoundedCornerShape(16.dp)
+        )
     }
 }
 
-// Chequea que sean todos valores numéricos y verifica si el monto está vacío
-fun validateMoneyError(amount: String, context: Context, navController : NavController): String {
-    if (amount.isEmpty()) {
-        return "Por favor ingrese un monto"
-    }
-    if (!amount.matches(Regex("^[0-9]*$"))) {
-        return "Por favor ingrese un monto válido"
-    }
-    depositMoney(amount.toInt(), context, navController)
+// Valida el monto ingresado
+fun validateDepositInput(amount: String): String {
+    if (amount.isEmpty()) return "Por favor ingrese un monto"
+    if (!amount.matches(Regex("^[0-9]*$"))) return "Por favor ingrese un monto válido"
     return ""
 }
 
-// Simula la acción de depositar dinero y abre un diálogo de confirmación
-fun depositMoney(amount: Int, context: Context, navController: NavController) {
-    println("Depósito de $amount realizado")
-    val builder = AlertDialog.Builder(context)
-    builder.setMessage("Se depositará un monto de \$$amount.")
-        .setTitle("Confimar depósito")
-        .setPositiveButton("Confimar") { dialog, _ -> dialog.dismiss()
-            navController.popBackStack()
-        }
-        .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
-
-    val dialog: AlertDialog = builder.create()
-    dialog.show()
-
+// Simula la acción de depositar dinero
+fun depositMoney(amount: Int, navController: NavController) {
+    println("Depósito de $$amount realizado")
+    navController.popBackStack()
 }
