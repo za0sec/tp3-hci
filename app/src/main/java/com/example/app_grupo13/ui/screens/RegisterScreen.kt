@@ -1,7 +1,5 @@
-
 package com.example.app_grupo13.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,27 +18,30 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.app_grupo13.ui.theme.DarkBackground
 import com.example.app_grupo13.ui.theme.LightText
+import com.example.app_grupo13.ui.viewmodels.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(navController: NavController) {
-    var name by remember { mutableStateOf("") }
+fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
+    val registrationResult = userViewModel.registrationResult
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = DarkBackground // Fondo oscuro
+        color = DarkBackground
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Centrar contenido verticalmente
+            verticalArrangement = Arrangement.Center
         ) {
-            // Título
             Text(
                 text = "Creá tu cuenta",
                 color = LightText,
@@ -53,14 +54,40 @@ fun RegisterScreen(navController: NavController) {
 
             // Campo de Nombre
             TextField(
-                value = name,
-                onValueChange = { name = it },
+                value = firstName,
+                onValueChange = { firstName = it },
                 singleLine = true,
-                label = { Text("Nombre completo", color = Color.Gray) },
+                label = { Text("Nombre", color = Color.Gray) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "Nombre completo",
+                        contentDescription = "Nombre",
+                        tint = Color(0xFF9C8AE0)
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color(0xFF9C8AE0),
+                    unfocusedIndicatorColor = Color.Gray,
+                    containerColor = Color(0xFF1C1C1C),
+                    cursorColor = Color(0xFF9C8AE0)
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de Apellido
+            TextField(
+                value = lastName,
+                onValueChange = { lastName = it },
+                singleLine = true,
+                label = { Text("Apellido", color = Color.Gray) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Apellido",
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -156,19 +183,21 @@ fun RegisterScreen(navController: NavController) {
                     .height(56.dp)
             )
 
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón de Continuar
             Button(
-                onClick = { navController.navigate("dashboard") },
+                onClick = {
+                    if (password == confirmPassword) {
+                        userViewModel.registerUser(firstName, lastName, email, password)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF7059AB)
-                ),
-
-                ) {
+                )
+            ) {
                 Text(
                     text = "Continuar",
                     color = Color.White,
@@ -176,7 +205,19 @@ fun RegisterScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold
                 )
             }
+
+            // Manejo del resultado
+            when (registrationResult.value) {
+                true -> navController.navigate("verify/${email}") {
+                    popUpTo("register") { inclusive = true }
+                }
+                false -> Text(
+                    text = "Error al registrarte. Intenta de nuevo.",
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+                null -> {}
+            }
         }
     }
 }
-

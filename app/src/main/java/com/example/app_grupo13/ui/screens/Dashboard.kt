@@ -29,16 +29,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
 import com.example.app_grupo13.ui.components.NavBar
+import com.example.app_grupo13.ui.viewmodels.DashboardViewModel
+import com.example.app_grupo13.ui.viewmodels.DashboardViewModelFactory
 
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun Dashboard(
+    navController: NavController,
+    viewModel: DashboardViewModel = viewModel(
+        factory = DashboardViewModelFactory(LocalContext.current)
+    )
+) {
     var isBalanceVisible by remember { mutableStateOf(false) }
+    val user = viewModel.user.value
+    val isLoading = viewModel.isLoading.value
+    val balance = viewModel.balance.value
 
 
     Box(
@@ -76,7 +88,28 @@ fun DashboardScreen(navController: NavController) {
                             modifier = Modifier.size(50.dp),
                         )*/
                         Text("Hola,", color = Color.White, fontSize = 16.sp)
-                        Text("John Doe", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        if (isLoading) {
+                            Text(
+                                text = "Cargando...",
+                                color = Color.White,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else {
+                            user?.let {
+                                Text(
+                                    text = "${it.firstName} ${it.lastName}",
+                                    color = Color.White,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            } ?: Text(
+                                text = "Usuario",
+                                color = Color.White,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
 
@@ -109,7 +142,9 @@ fun DashboardScreen(navController: NavController) {
                             )
                         }
                         Text(
-                            if (isBalanceVisible) "$150,000" else "****",
+                            if (isBalanceVisible) 
+                                balance?.let { "$${String.format("%.2f", it)}" } ?: "Cargando..."
+                            else "****",
                             color = Color.Black,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold

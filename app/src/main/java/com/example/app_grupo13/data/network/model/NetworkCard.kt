@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Serializable
-data class NetworkCard(
+data class  NetworkCard(
     var id: Int? = null,
     var number: String,
     var expirationDate: String,
