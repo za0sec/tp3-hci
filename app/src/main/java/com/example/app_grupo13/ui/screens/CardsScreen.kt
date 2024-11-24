@@ -61,7 +61,7 @@ fun CardsScreen(navController: NavController) {
             contentPadding = PaddingValues(16.dp)
         ) {
             items(cardList) { card ->
-                CardItem(card = card)
+                CardItem(card = card, onDelete = { cardList.remove(card) })
             }
         }
 
@@ -236,7 +236,7 @@ fun AddCardDialog(onDismiss: () -> Unit, onAddCard: (CardData) -> Unit) {
 }
 
 @Composable
-fun CardItem(card: CardData) {
+fun CardItem(card: CardData, onDelete: () -> Unit) {
     var isFlipped by remember { mutableStateOf(false) }
     val rotation = remember { Animatable(0f) }
 
@@ -258,7 +258,7 @@ fun CardItem(card: CardData) {
         contentAlignment = Alignment.Center
     ) {
         if (rotation.value <= 90f) {
-            FrontCardContent(card = card)
+            FrontCardContent(card = card, onDelete = onDelete)
         } else {
             BackCardContent(card = card)
         }
@@ -266,7 +266,7 @@ fun CardItem(card: CardData) {
 }
 
 @Composable
-fun FrontCardContent(card: CardData) {
+fun FrontCardContent(card: CardData, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxSize(),
         shape = RoundedCornerShape(16.dp),
@@ -276,7 +276,7 @@ fun FrontCardContent(card: CardData) {
         Box(
             modifier = Modifier.background(
                 Brush.linearGradient(
-                    colors = listOf(Color(0xFF8E24AA), Color(0xFFCE93D8))
+                    colors = listOf(Color(0xFF8E24AA), Color(0xFFC980D5))
                 )
             )
         ) {
@@ -293,13 +293,24 @@ fun FrontCardContent(card: CardData) {
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "Logo Plum",
                         tint = Color.White,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(48.dp)
                     )
-                    Text(
-                        text = card.expiryDate,
-                        color = Color.White,
-                        fontSize = 14.sp
-                    )
+                    Row {
+                        Text(
+                            text = card.expiryDate,
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_delete),
+                            contentDescription = "Eliminar tarjeta",
+                            tint = Color.Red,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable { onDelete() } // Acción para eliminar tarjeta
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = card.cardNumber, color = Color.White, fontSize = 20.sp)
@@ -313,10 +324,11 @@ fun FrontCardContent(card: CardData) {
 @Composable
 fun BackCardContent(card: CardData) {
     Card(
-        modifier = Modifier.fillMaxSize()
-        .graphicsLayer {
-        rotationY = 180f // Invertimos el contenido del reverso
-    },
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                rotationY = 180f // Invertimos el contenido del reverso
+            },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -324,7 +336,7 @@ fun BackCardContent(card: CardData) {
         Box(
             modifier = Modifier.background(
                 Brush.linearGradient(
-                    colors = listOf(Color(0xFF8E24AA), Color(0xFFCE93D8))
+                    colors = listOf(Color(0xFF8E24AA), Color(0xFFC980D5))
                 )
             )
         ) {
