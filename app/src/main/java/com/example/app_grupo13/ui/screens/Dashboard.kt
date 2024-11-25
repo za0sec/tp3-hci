@@ -10,14 +10,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,10 +46,10 @@ fun Dashboard(
     )
 ) {
     var isBalanceVisible by remember { mutableStateOf(false) }
+    var showPaymentDialog by remember { mutableStateOf(false) }
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
     val balance = viewModel.balance.value
-
 
     Box(
         modifier = Modifier
@@ -85,11 +80,6 @@ fun Dashboard(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Column {
-                        /*Image(
-                            painter = painterResource(id = R.drawable.logo),
-                            contentDescription = null,
-                            modifier = Modifier.size(50.dp),
-                        )*/
                         Text("Hola,", color = Color.White, fontSize = 16.sp)
                         if (isLoading) {
                             Text(
@@ -155,7 +145,7 @@ fun Dashboard(
                             )
                         }
                         Text(
-                            if (isBalanceVisible) 
+                            if (isBalanceVisible)
                                 balance?.let { "$${String.format("%.2f", it)}" } ?: "Cargando..."
                             else "****",
                             color = Color.Black,
@@ -167,11 +157,9 @@ fun Dashboard(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
-
                             ActionIcon(R.drawable.ic_deposit, "Depositar", Color(0xFF66344A), onClick = { navController.navigate("deposit") }) // Color morado
-                             // Color morado
                             ActionIcon(R.drawable.ic_transfer, "Transferir", Color(0xFFE08453), onClick = { navController.navigate("transfer")}) // Color amarillo
-                            ActionIcon(R.drawable.ic_qr, "Pagar", Color(0xFFFFBC52), onClick = { navController.navigate("pay")}) // Color rojo
+                            ActionIcon(R.drawable.ic_qr, "Pagar", Color(0xFFFFBC52), onClick = { showPaymentDialog = true }) // Color rojo
                         }
                     }
                 }
@@ -191,8 +179,45 @@ fun Dashboard(
             NavBar(navController = navController)
         }
     }
-}
 
+    if (showPaymentDialog) {
+        AlertDialog(
+            onDismissRequest = { showPaymentDialog = false },
+            title = { Text(text = "Selecciona el método de pago") },
+            text = {
+                Column {
+                    Text("Elige una opción para continuar:")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        showPaymentDialog = false
+                        navController.navigate("pay_qr")
+                    }) {
+                        Text("Pagar con QR")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = {
+                        showPaymentDialog = false
+                        navController.navigate("pay_with_balance")
+                    }) {
+                        Text("Pagar con saldo en cuenta")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = {
+                        showPaymentDialog = false
+                        navController.navigate("pay_with_credit_card")
+                    }) {
+                        Text("Pagar con tarjeta de crédito")
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showPaymentDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+}
 
 @Composable
 fun ActionIcon(
@@ -200,8 +225,7 @@ fun ActionIcon(
     text: String,
     backgroundColor: Color = Color.Transparent,
     onClick: () -> Unit
-    ) {
-
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(8.dp)
@@ -228,7 +252,6 @@ fun ActionIcon(
     }
 }
 
-
 @Composable
 fun GridServices(navController: NavController) {
     Column {
@@ -242,6 +265,7 @@ fun GridServices(navController: NavController) {
         }
     }
 }
+
 @Composable
 fun ServiceCard(title: String, icon: Int, onClick: () -> Unit) {
     Card(

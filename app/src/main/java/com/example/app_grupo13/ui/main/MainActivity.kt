@@ -243,7 +243,7 @@ fun AppNavigation(userViewModel: UserViewModel) {
         composable("reset_password_new") { ResetNewPasswordScreen(navController) }
         composable("deposit") { DepositScreen(navController) }
         composable("transfer") { TransferScreen(navController) }
-        composable("pay") { PayScreen(navController) }
+        composable("pay_qr") { PayScreen(navController) }
         composable("cards"){CardsScreen(navController)}
         composable("invest"){InvestmentScreen(navController)}
     }
