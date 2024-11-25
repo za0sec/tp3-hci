@@ -188,29 +188,39 @@ fun Dashboard(
                 Column {
                     Text("Elige una opción para continuar:")
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {
-                        showPaymentDialog = false
-                        navController.navigate("pay_qr")
-                    }) {
+                    Button(
+                        onClick = {
+                            showPaymentDialog = false
+                            navController.navigate("pay_qr")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text("Pagar con QR")
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = {
-                        showPaymentDialog = false
-                        navController.navigate("pay_with_balance")
-                    }) {
+                    Button(
+                        onClick = {
+                            showPaymentDialog = false
+                            navController.navigate("pay_with_balance")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text("Pagar con saldo en cuenta")
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = {
-                        showPaymentDialog = false
-                        navController.navigate("pay_with_credit_card")
-                    }) {
-                        Text("Pagar con tarjeta de crédito")
+                    Button(
+                        onClick = {
+                            showPaymentDialog = false
+                            navController.navigate("pay_with_card")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Pagar con tarjeta")
                     }
                 }
             },
-            confirmButton = {
+            confirmButton = {},
+            dismissButton = {
                 TextButton(onClick = { showPaymentDialog = false }) {
                     Text("Cancelar")
                 }

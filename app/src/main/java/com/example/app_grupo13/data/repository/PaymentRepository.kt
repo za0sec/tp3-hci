@@ -49,7 +49,7 @@ class PaymentRepository(private val remoteDataSource: RemoteDataSource) {
         return try {
             val response = remoteDataSource.getPayments(page, direction, pending, type, range, source, cardId)
             if (response.isSuccessful) {
-                response.body()
+                response.body()?.payments
             } else {
                 Log.e("PaymentRepository", "Error getting payments: ${response.code()}")
                 null
