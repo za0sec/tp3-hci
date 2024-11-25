@@ -12,6 +12,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -25,6 +26,11 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,6 +66,7 @@ fun Dashboard(
     println(currentLanguage)
     var selectedLanguage by remember { mutableStateOf(if (currentLanguage == "es") "Español" else "English") }
     var isBalanceVisible by remember { mutableStateOf(false) }
+    var showPaymentDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) } // Estado del diálogo
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
@@ -214,11 +221,55 @@ fun Dashboard(
             }
         )
     }
+
+    if (showPaymentDialog) {
+        AlertDialog(
+            onDismissRequest = { showPaymentDialog = false },
+            title = { Text(text = "Selecciona el método de pago") },
+            text = {
+                Column {
+                    Text("Elige una opción para continuar:")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            showPaymentDialog = false
+                            navController.navigate("pay_qr")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Pagar con QR")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            showPaymentDialog = false
+                            navController.navigate("pay_with_balance")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Pagar con saldo en cuenta")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            showPaymentDialog = false
+                            navController.navigate("pay_with_card")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Pagar con tarjeta")
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPaymentDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 }
-
-
-
-
 
 @Composable
 fun SettingsDialog(

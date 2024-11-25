@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app_grupo13.data.model.User
+import com.example.app_grupo13.data.model.WalletDetails
 import com.example.app_grupo13.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
@@ -15,6 +16,9 @@ class DashboardViewModel(private val userRepository: UserRepository) : ViewModel
     
     private val _balance = mutableStateOf<Double?>(null)
     val balance: State<Double?> = _balance
+
+    private val _walletDetails = mutableStateOf<WalletDetails?>(null)
+    val walletDetails: State<WalletDetails?> = _walletDetails
     
     private val _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
@@ -22,6 +26,13 @@ class DashboardViewModel(private val userRepository: UserRepository) : ViewModel
     init {
         fetchUserData()
         fetchBalance()
+        fetchWalletDetails()
+    }
+
+    fun reloadData() {
+        fetchUserData()
+        fetchBalance()
+        fetchWalletDetails()
     }
 
     private fun fetchUserData() {
@@ -52,6 +63,19 @@ class DashboardViewModel(private val userRepository: UserRepository) : ViewModel
                 }
             } catch (e: Exception) {
                 Log.e("DashboardViewModel", "Error fetching balance", e)
+            }
+        }
+    }
+
+    private fun fetchWalletDetails() {
+        viewModelScope.launch {
+            try {
+                val response = userRepository.fetchWalletDetails()
+                if (response.isSuccessful && response.body() != null) {
+                    _walletDetails.value = response.body()
+                }
+            } catch (e: Exception) {
+                Log.e("DashboardViewModel", "Error fetching wallet details", e)
             }
         }
     }

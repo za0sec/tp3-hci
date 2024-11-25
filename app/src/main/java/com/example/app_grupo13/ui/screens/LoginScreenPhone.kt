@@ -28,6 +28,7 @@ import com.example.app_grupo13.ui.viewmodels.LoginViewModelFactory
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import android.util.Log
+import androidx.compose.material.icons.filled.ArrowBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,8 +51,29 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Centrar contenido verticalmente
+            verticalArrangement = Arrangement.Top // Cambiado para acomodar la flecha de regreso al inicio
         ) {
+            // Flecha de regreso
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.wrapContentSize()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back Arrow",
+                        tint = Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(200.dp)) // Espaciado entre la flecha y el título
+
             // Título
             Text(
                 text = "Iniciá sesión",
@@ -108,7 +130,6 @@ fun LoginScreen(
                 },
 
                 colors = TextFieldDefaults.textFieldColors(
-
                     focusedIndicatorColor = Color(0xFF9C8AE0),
                     unfocusedIndicatorColor = Color.Gray,
                     containerColor = Color(0xFF1C1C1C),
@@ -144,7 +165,7 @@ fun LoginScreen(
 
             // Botón de Continuar
             Button(
-                onClick = { 
+                onClick = {
                     Log.d("LoginScreen", "Login button clicked with email: $email")
                     viewModel.loginUser(email, password)
                 },
@@ -173,7 +194,7 @@ fun LoginScreen(
         }
     }
 
-    // Add this to observe login result
+    // Observa el resultado del inicio de sesión
     LaunchedEffect(viewModel.loginResult.value) {
         Log.d("LoginScreen", "LoginResult changed: ${viewModel.loginResult.value}")
         viewModel.loginResult.value?.let { success ->
@@ -188,4 +209,3 @@ fun LoginScreen(
         }
     }
 }
-

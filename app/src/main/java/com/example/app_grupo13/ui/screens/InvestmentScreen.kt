@@ -1,39 +1,54 @@
 package com.example.app_grupo13.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
+import com.example.app_grupo13.ui.viewmodels.InvestmentViewModel
+import com.example.app_grupo13.ui.viewmodels.InvestmentViewModelFactory
 import java.text.NumberFormat
 import java.util.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvestmentScreen(navController: NavController) {
-    var availableBalance by remember { mutableStateOf(10000.00) } // TODO: que sea el balance de dashboard
-    var totalInvested by remember { mutableStateOf(0.00) }
-    var totalReturn by remember { mutableStateOf(0.00) }
+fun InvestmentScreen(
+    navController: NavController,
+    context: Context = LocalContext.current,
+    viewModel: InvestmentViewModel = viewModel(factory = InvestmentViewModelFactory(context))
+) {
+    val currentInvestment by viewModel.currentInvestment.collectAsState()
+    val dailyReturns by viewModel.dailyReturns.collectAsState()
+    val dailyInterest by viewModel.dailyInterest.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    
     var inputAmount by remember { mutableStateOf("") }
-    var showError by remember { mutableStateOf(false) } // Mostrar error de fondos insuficientes
-    var selectedInvestmentType by remember { mutableStateOf("Crypto") }
-    var showTypeDialog by remember { mutableStateOf(false) }
-    var showConfirmDialog by remember { mutableStateOf(false) }
+    var showInvestDialog by remember { mutableStateOf(false) }
+    var showDivestDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
-    // Lista de inversiones activas
-    val investments = remember { mutableStateListOf<Investment>() }
+    LaunchedEffect(Unit) {
+        viewModel.reloadData()
+    }
 
     Column(
         modifier = Modifier
@@ -43,158 +58,188 @@ fun InvestmentScreen(navController: NavController) {
     ) {
         // Encabezado
         Text(
-            text = "Inversiones Activas",
+            text = "Inversiones",
             color = Color.White,
             fontSize = 28.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Mostrar balance y retorno total
-        BalanceCard(availableBalance = availableBalance, totalInvested = totalInvested, totalReturn = totalReturn)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E))
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Inversión Actual: $${currentInvestment?.investment ?: 0}",
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Tasa Diaria: ${dailyInterest?.interest ?: 0}%",
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección para nueva inversión
+        // Campo para nueva inversión
         TextField(
             value = inputAmount,
-            onValueChange = {
-                if (it.isEmpty() || it.matches(Regex("^[0-9]*\\.?[0-9]*\$"))) {
+            onValueChange = { 
+                if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
                     inputAmount = it
-                    showError = it.toDoubleOrNull() ?: 0.0 > availableBalance // Mostrar error si el monto supera el balance
                 }
             },
-            label = { Text(text = "Monto a invertir", color = Color.Gray) },
-            singleLine = true,
-            isError = showError, // Cambiar a rojo si hay un error
+            label = { Text("Monto a invertir", color = Color.Gray) },
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color(0xFF1C1C1E),
-                focusedIndicatorColor = if (showError) Color.Red else Color(0xFF7059AB),
-                unfocusedIndicatorColor = if (showError) Color.Red else Color.Gray
+                focusedIndicatorColor = Color(0xFF7059AB)
             ),
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Mostrar mensaje de error si los fondos son insuficientes
-        if (showError) {
-            Text(
-                text = "Fondos insuficientes",
-                color = Color.Red,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
-
+        // Botones de Invertir y Desinvertir
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
-                onClick = { showTypeDialog = true }, // Mostrar diálogo de selección de tipo
+                onClick = { showInvestDialog = true },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !showError && inputAmount.isNotEmpty() && inputAmount.toDoubleOrNull() != null
+                modifier = Modifier.weight(1f)
             ) {
-                Text(text = "Seleccionar Tipo e Invertir", color = Color.White)
+                Text("Invertir", color = Color.White)
+            }
+            
+            Spacer(modifier = Modifier.width(8.dp))
+            
+            Button(
+                onClick = { showDivestDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
+                modifier = Modifier.weight(1f),
+                enabled = currentInvestment?.investment ?: 0.0 > 0
+            ) {
+                Text("Desinvertir", color = Color.White)
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de inversiones activas
+        // Lista de retornos diarios
         Text(
-            text = "Inversiones Activas",
-            color = Color.Gray,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            text = "Retornos Diarios",
+            color = Color.White,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(vertical = 8.dp)
         )
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(investments) { investment ->
-                InvestmentCard(
-                    investment = investment,
-                    onWithdraw = {
-                        investments.remove(investment)
-                        availableBalance += investment.amount
-                        totalInvested -= investment.amount
-                        totalReturn += investment.dailyReturn * 30 // Simulación de retorno mensual
+        
+        LazyColumn {
+            items(dailyReturns) { dailyReturn ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C1E))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Retorno: $${dailyReturn.returnGiven}",
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Balance anterior: $${dailyReturn.balanceBefore}",
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "Balance posterior: $${dailyReturn.balanceAfter}",
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "Fecha: ${dailyReturn.createdAt}",
+                            color = Color.Gray
+                        )
                     }
-                )
+                }
             }
         }
     }
 
-    // Diálogo para seleccionar el tipo de inversión
-    if (showTypeDialog) {
+    // Diálogo de inversión
+    if (showInvestDialog) {
         AlertDialog(
-            onDismissRequest = { showTypeDialog = false },
-            title = { Text(text = "Seleccionar Tipo de Inversión") },
-            text = {
-                Column {
-                    InvestmentTypeOption("Crypto", selectedInvestmentType) { selectedInvestmentType = it }
-                    InvestmentTypeOption("Acciones", selectedInvestmentType) { selectedInvestmentType = it }
-                    InvestmentTypeOption("Bonos", selectedInvestmentType) { selectedInvestmentType = it }
-                }
-            },
+            onDismissRequest = { showInvestDialog = false },
+            title = { Text("Confirmar Inversión") },
+            text = { Text("¿Deseas invertir $${inputAmount}?") },
             confirmButton = {
                 Button(
                     onClick = {
-                        showTypeDialog = false
-                        showConfirmDialog = true // Mostrar diálogo de confirmación
+                        scope.launch {
+                            inputAmount.toDoubleOrNull()?.let { amount ->
+                                if (viewModel.invest(amount)) {
+                                    inputAmount = ""
+                                    showInvestDialog = false
+                                }
+                            }
+                        }
                     }
                 ) {
                     Text("Confirmar")
                 }
             },
             dismissButton = {
-                Button(onClick = { showTypeDialog = false }) {
+                Button(onClick = { showInvestDialog = false }) {
                     Text("Cancelar")
                 }
             }
         )
     }
 
-    // Diálogo de confirmación antes de invertir
-    if (showConfirmDialog) {
+    // Diálogo de desinversión
+    if (showDivestDialog) {
         AlertDialog(
-            onDismissRequest = { showConfirmDialog = false },
-            title = { Text(text = "Confirmar Inversión") },
-            text = {
-                Text(
-                    text = "¿Estás seguro de invertir $${inputAmount} en $selectedInvestmentType?",
-                    color = Color.Gray
-                )
-            },
+            onDismissRequest = { showDivestDialog = false },
+            title = { Text("Confirmar Desinversión") },
+            text = { Text("¿Deseas desinvertir $${inputAmount}?") },
             confirmButton = {
                 Button(
                     onClick = {
-                        val amount = inputAmount.toDoubleOrNull()
-                        if (amount != null && amount <= availableBalance) {
-                            investments.add(
-                                Investment(
-                                    type = "Inversión en $selectedInvestmentType",
-                                    amount = amount,
-                                    dailyReturn = amount * 0.001
-                                )
-                            )
-                            availableBalance -= amount
-                            totalInvested += amount
-                            inputAmount = ""
+                        scope.launch {
+                            inputAmount.toDoubleOrNull()?.let { amount ->
+                                if (viewModel.divest(amount)) {
+                                    inputAmount = ""
+                                    showDivestDialog = false
+                                }
+                            }
                         }
-                        showConfirmDialog = false
                     }
                 ) {
                     Text("Confirmar")
                 }
             },
             dismissButton = {
-                Button(onClick = { showConfirmDialog = false }) {
+                Button(onClick = { showDivestDialog = false }) {
                     Text("Cancelar")
                 }
             }
         )
+    }
+
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color(0xFF7059AB))
+        }
     }
 }
 

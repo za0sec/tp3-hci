@@ -48,13 +48,32 @@ import com.example.app_grupo13.ui.components.NavBar
 import com.example.app_grupo13.ui.theme.PurplePrimary
 import kotlin.coroutines.coroutineContext
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.app_grupo13.ui.viewmodels.DepositViewModel
+import com.example.app_grupo13.ui.viewmodels.DepositViewModelFactory
+import com.example.app_grupo13.ui.viewmodels.DashboardViewModel
+import com.example.app_grupo13.ui.viewmodels.DashboardViewModelFactory
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DepositScreen(navController: NavController) {
+fun DepositScreen(
+    navController: NavController,
+    context: Context = LocalContext.current,
+    depositViewModel: DepositViewModel = viewModel(factory = DepositViewModelFactory(context)),
+    dashboardViewModel: DashboardViewModel = viewModel(factory = DashboardViewModelFactory(context))
+) {
     var amount by remember { mutableStateOf("") }
     var showConfirmDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    
+    val isLoading by depositViewModel.isLoading.collectAsState()
+    val error by depositViewModel.error.collectAsState()
+    val walletDetails by depositViewModel.walletDetails.collectAsState()
 
     Column(
         modifier = Modifier
@@ -81,6 +100,8 @@ fun DepositScreen(navController: NavController) {
             }
         }
 
+        Spacer(modifier = Modifier.height(200.dp)) // Espaciado entre la flecha y el título
+
         // Título
         Box(
             modifier = Modifier
@@ -97,10 +118,33 @@ fun DepositScreen(navController: NavController) {
             )
         }
 
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF7059AB))
+            }
+        }
+
+        error?.let { errorMsg ->
+            Text(
+                text = errorMsg,
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
         // Campo para ingresar el monto
         TextField(
             value = amount,
-            onValueChange = { amount = it },
+            onValueChange = { 
+                if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                    amount = it
+                    errorMessage = ""
+                }
+            },
             label = { Text("Ingresar monto", color = Color.Gray) },
             leadingIcon = {
                 Icon(
@@ -164,15 +208,24 @@ fun DepositScreen(navController: NavController) {
                         painter = painterResource(id = R.drawable.ic_deposit),
                         contentDescription = null,
                         tint = Color(0xFF9C8AE0),
-                        modifier = Modifier.size(48.dp).align(Alignment.CenterHorizontally)
+                        modifier = Modifier
+                            .size(48.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        depositMoney(amount.toInt(), navController)
-                        showConfirmDialog = false
+                        scope.launch {
+                            amount.toDoubleOrNull()?.let { amountValue ->
+                                showConfirmDialog = false
+                                depositViewModel.rechargeWallet(amountValue)
+                                // No nos importa la respuesta, simplemente actualizamos y navegamos
+                                dashboardViewModel.reloadData()
+                                navController.popBackStack()
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB))
                 ) {
@@ -196,12 +249,8 @@ fun DepositScreen(navController: NavController) {
 // Valida el monto ingresado
 fun validateDepositInput(amount: String): String {
     if (amount.isEmpty()) return "Por favor ingrese un monto"
-    if (!amount.matches(Regex("^[0-9]*$"))) return "Por favor ingrese un monto válido"
+    if (!amount.matches(Regex("^\\d*\\.?\\d*$"))) return "Por favor ingrese un monto válido"
+    val amountValue = amount.toDoubleOrNull()
+    if (amountValue == null || amountValue <= 0) return "Por favor ingrese un monto válido"
     return ""
-}
-
-// Simula la acción de depositar dinero
-fun depositMoney(amount: Int, navController: NavController) {
-    println("Depósito de $$amount realizado")
-    navController.popBackStack()
 }
