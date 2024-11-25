@@ -66,6 +66,7 @@ import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.PermissionChecker
 import com.example.app_grupo13.databinding.ActivityMainBinding
 import com.example.app_grupo13.ui.viewmodels.CardsViewModelFactory
+import com.example.app_grupo13.ui.screens.InvestmentScreen
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -252,5 +253,6 @@ fun AppNavigation(userViewModel: UserViewModel) {
                 )
             )
         }
+        composable("invest"){InvestmentScreen(navController)}
     }
 }

@@ -3,6 +3,7 @@ package com.example.app_grupo13.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -22,7 +23,7 @@ import com.example.app_grupo13.ui.viewmodels.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
+fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) { // TODO confirmar contrasena ojitos
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -40,8 +41,29 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 .fillMaxSize()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top // Cambiado para acomodar la flecha al principio
         ) {
+            // Flecha de regreso
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.wrapContentSize()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back Arrow",
+                        tint = Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(50.dp)) // Espaciado entre la flecha y el título
+
             Text(
                 text = "Creá tu cuenta",
                 color = LightText,
@@ -221,3 +243,4 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
         }
     }
 }
+

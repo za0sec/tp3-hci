@@ -10,6 +10,15 @@ import com.example.app_grupo13.data.model.VerifyResponse
 import com.example.app_grupo13.data.model.Balance
 import com.example.app_grupo13.data.model.WalletDetails
 import com.example.app_grupo13.data.model.UpdateAliasRequest
+import com.example.app_grupo13.data.model.RechargeRequest
+import com.example.app_grupo13.data.model.Investment
+import com.example.app_grupo13.data.model.InvestmentRequest
+import com.example.app_grupo13.data.model.DailyReturn
+import com.example.app_grupo13.data.model.DailyInterest
+import com.example.app_grupo13.data.model.RecoverPasswordRequest
+import com.example.app_grupo13.data.model.ResetPasswordRequest
+import com.example.app_grupo13.data.model.Payment
+import com.example.app_grupo13.data.model.PaymentRequest
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -51,4 +60,48 @@ interface WalletApiService {
     @PUT("wallet/update-alias")
     @Headers("Content-Type: application/json")
     suspend fun updateAlias(@Body request: UpdateAliasRequest): Response<WalletDetails>
+
+    @POST("wallet/recharge")
+    @Headers("Content-Type: application/json")
+    suspend fun rechargeWallet(@Body request: RechargeRequest): Response<WalletDetails>
+
+    @GET("wallet/investment")
+    suspend fun getInvestment(): Response<Investment>
+
+    @POST("wallet/invest")
+    suspend fun invest(@Body request: InvestmentRequest): Response<WalletDetails>
+
+    @POST("wallet/divest")
+    suspend fun divest(@Body request: InvestmentRequest): Response<WalletDetails>
+
+    @GET("wallet/daily-returns")
+    suspend fun getDailyReturns(@Query("page") page: Int = 1): Response<List<DailyReturn>>
+
+    @GET("wallet/daily-interest")
+    suspend fun getDailyInterest(): Response<DailyInterest>
+
+    @POST("user/recover-password")
+    @Headers("Content-Type: application/json")
+    suspend fun recoverPassword(@Body request: RecoverPasswordRequest): Response<Unit>
+
+    @POST("user/reset-password")
+    @Headers("Content-Type: application/json")
+    suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<Unit>
+
+    @POST("payment")
+    suspend fun makePayment(@Body request: PaymentRequest): Response<Payment>
+
+    @GET("payment")
+    suspend fun getPayments(
+        @Query("page") page: Int = 1,
+        @Query("direction") direction: String = "ASC",
+        @Query("pending") pending: Boolean? = null,
+        @Query("type") type: String? = null,
+        @Query("range") range: String? = null,
+        @Query("source") source: String? = null,
+        @Query("cardId") cardId: Int? = null
+    ): Response<List<Payment>>
+
+    @GET("payment/{paymentId}")
+    suspend fun getPayment(@Path("paymentId") paymentId: Int): Response<Payment>
 }

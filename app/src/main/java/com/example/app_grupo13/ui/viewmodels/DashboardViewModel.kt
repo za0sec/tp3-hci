@@ -29,6 +29,12 @@ class DashboardViewModel(private val userRepository: UserRepository) : ViewModel
         fetchWalletDetails()
     }
 
+    fun reloadData() {
+        fetchUserData()
+        fetchBalance()
+        fetchWalletDetails()
+    }
+
     private fun fetchUserData() {
         _isLoading.value = true
         viewModelScope.launch {
