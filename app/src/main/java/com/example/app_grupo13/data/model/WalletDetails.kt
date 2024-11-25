@@ -5,11 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WalletDetails(
-    val id: Int,
-    val balance: Double,
-    val invested: Double,
-    val cbu: String,
-    val alias: String,
-    @SerialName("createdAt") val createdAt: String,
-    @SerialName("updatedAt") val updatedAt: String
+    val id: Int? = null,
+    val balance: Double? = null,
+    val invested: Double? = null,
+    val cbu: String? = null,
+    val alias: String? = null,
 ) 

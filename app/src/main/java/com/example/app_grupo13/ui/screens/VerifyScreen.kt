@@ -17,6 +17,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_grupo13.ui.viewmodels.VerifyViewModel
 import com.example.app_grupo13.ui.viewmodels.VerifyViewModelFactory
+import androidx.compose.ui.res.stringResource
+import com.example.app_grupo13.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,13 +59,13 @@ fun VerifyScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Success",
+                        contentDescription = stringResource(R.string.success),
                         tint = Color(0xFF4CAF50),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
-                        text = "Te enviamos un código de verificación a $email",
+                        text = stringResource(R.string.verification_code_sent, email ?: ""),
                         color = Color(0xFF4CAF50),
                         fontSize = 14.sp
                     )
@@ -71,7 +73,7 @@ fun VerifyScreen(
             }
 
             Text(
-                text = "Verificá tu cuenta",
+                text = stringResource(R.string.verify_account),
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = 32.sp,
@@ -84,7 +86,7 @@ fun VerifyScreen(
                 value = code,
                 onValueChange = { code = it },
                 singleLine = true,
-                label = { Text("Código de verificación", color = Color.Gray) },
+                label = { Text(stringResource(R.string.verification_code), color = Color.Gray) },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color(0xFF9C8AE0),
                     unfocusedIndicatorColor = Color.Gray,
@@ -118,7 +120,7 @@ fun VerifyScreen(
                     )
                 } else {
                     Text(
-                        text = "Verificar",
+                        text = stringResource(R.string.verify),
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold

@@ -21,6 +21,8 @@ import androidx.navigation.NavController
 import com.example.app_grupo13.ui.viewmodels.RecoverPasswordViewModel
 import com.example.app_grupo13.ui.viewmodels.RecoverPasswordViewModelFactory
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.example.app_grupo13.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +41,6 @@ fun ResetPasswordCodeScreen(
     val error by viewModel.error.collectAsState()
 
     LaunchedEffect(Unit) {
-        // Establecer el email en el ViewModel cuando la pantalla se carga
         email?.let { viewModel.setEmail(it) }
     }
 
@@ -54,7 +55,6 @@ fun ResetPasswordCodeScreen(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
-            // Flecha de regreso
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,7 +67,7 @@ fun ResetPasswordCodeScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back Arrow",
+                        contentDescription = stringResource(R.string.back_arrow),
                         tint = Color.White
                     )
                 }
@@ -75,9 +75,8 @@ fun ResetPasswordCodeScreen(
 
             Spacer(modifier = Modifier.height(100.dp))
 
-            // Título
             Text(
-                text = "Restablecer Contraseña",
+                text = stringResource(R.string.recover_password),
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = 32.sp,
@@ -88,13 +87,12 @@ fun ResetPasswordCodeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo para el Código
             TextField(
                 value = code,
                 onValueChange = { code = it },
                 singleLine = true,
-                label = { Text("Código", color = Color.Gray) },
-                placeholder = { Text("Ingresa el código recibido", color = Color.Gray) },
+                label = { Text(stringResource(R.string.code), color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.enter_code), color = Color.Gray) },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color(0xFF9C8AE0),
                     unfocusedIndicatorColor = Color.Gray,
@@ -109,13 +107,12 @@ fun ResetPasswordCodeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de Nueva Contraseña
             TextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
                 singleLine = true,
-                label = { Text("Nueva Contraseña", color = Color.Gray) },
-                placeholder = { Text("Ingresa tu nueva contraseña", color = Color.Gray) },
+                label = { Text(stringResource(R.string.new_password), color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.enter_new_password), color = Color.Gray) },
                 visualTransformation = PasswordVisualTransformation(),
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color(0xFF9C8AE0),
@@ -131,13 +128,12 @@ fun ResetPasswordCodeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de Confirmar Contraseña
             TextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 singleLine = true,
-                label = { Text("Confirmar Contraseña", color = Color.Gray) },
-                placeholder = { Text("Confirma tu nueva contraseña", color = Color.Gray) },
+                label = { Text(stringResource(R.string.confirm_password), color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.confirm_new_password), color = Color.Gray) },
                 visualTransformation = PasswordVisualTransformation(),
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color(0xFF9C8AE0),
@@ -171,19 +167,23 @@ fun ResetPasswordCodeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón de Continuar
+            val passwordsDontMatch = stringResource(R.string.passwords_dont_match)
+            val passwordTooShort = stringResource(R.string.password_too_short)
+            val codeRequired = stringResource(R.string.code_required)
+            val continueButtonText = stringResource(R.string.continue_button)
+
             Button(
                 onClick = {
                     if (newPassword != confirmPassword) {
-                        errorMessage = "Las contraseñas no coinciden"
+                        errorMessage = passwordsDontMatch
                         return@Button
                     }
                     if (newPassword.length < 8) {
-                        errorMessage = "La contraseña debe tener al menos 8 caracteres"
+                        errorMessage = passwordTooShort
                         return@Button
                     }
                     if (code.isEmpty()) {
-                        errorMessage = "Debes ingresar el código"
+                        errorMessage = codeRequired
                         return@Button
                     }
                     
@@ -210,7 +210,7 @@ fun ResetPasswordCodeScreen(
                     )
                 } else {
                     Text(
-                        text = "Continuar",
+                        text = continueButtonText,
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
@@ -220,9 +220,8 @@ fun ResetPasswordCodeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Texto explicativo
             Text(
-                text = "Revisa tu correo y escribe el código que te enviamos junto con tu nueva contraseña.",
+                text = stringResource(R.string.reset_password_code_instructions),
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,

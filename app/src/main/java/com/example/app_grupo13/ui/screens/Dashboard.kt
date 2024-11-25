@@ -1,6 +1,8 @@
 package com.example.app_grupo13.ui.screens
 
-import android.text.style.ClickableSpan
+import android.content.Context
+import android.content.res.Configuration
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +15,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,31 +35,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
 import com.example.app_grupo13.ui.components.NavBar
 import com.example.app_grupo13.ui.viewmodels.DashboardViewModel
-import com.example.app_grupo13.ui.viewmodels.DashboardViewModelFactory
+import com.example.app_grupo13.utils.PreferencesManager
+import java.util.Locale
+
 
 @Composable
 fun Dashboard(
     navController: NavController,
-    viewModel: DashboardViewModel = viewModel(
-        factory = DashboardViewModelFactory(LocalContext.current)
-    )
+    viewModel: DashboardViewModel,
+    onLanguageChange: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    val currentLanguage = context.resources.configuration.locales[0].language
+    println(currentLanguage)
+    var selectedLanguage by remember { mutableStateOf(if (currentLanguage == "es") "Español" else "English") }
     var isBalanceVisible by remember { mutableStateOf(false) }
     var showPaymentDialog by remember { mutableStateOf(false) }
+    var showSettingsDialog by remember { mutableStateOf(false) } // Estado del diálogo
     val user = viewModel.user.value
     val isLoading = viewModel.isLoading.value
     val balance = viewModel.balance.value
@@ -80,10 +98,10 @@ fun Dashboard(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Column {
-                        Text("Hola,", color = Color.White, fontSize = 16.sp)
+                        Text(stringResource(R.string.hello), color = Color.White, fontSize = 16.sp)
                         if (isLoading) {
                             Text(
-                                text = "Cargando...",
+                                text = stringResource(R.string.loading),
                                 color = Color.White,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
@@ -97,7 +115,7 @@ fun Dashboard(
                                     fontWeight = FontWeight.Bold
                                 )
                             } ?: Text(
-                                text = "Usuario",
+                                text = stringResource(R.string.user_default),
                                 color = Color.White,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
@@ -105,7 +123,7 @@ fun Dashboard(
                         }
                     }
                     IconButton(
-                        onClick = { /* Navegar a la pantalla de ajustes */ },
+                        onClick = { showSettingsDialog = true }, // Abre el diálogo de ajustes
                         modifier = Modifier.align(Alignment.TopEnd)
                     ) {
                         Icon(
@@ -134,10 +152,13 @@ fun Dashboard(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Balance", color = Color.Black, fontSize = 16.sp)
+                            Text(stringResource(R.string.balance), color = Color.Black, fontSize = 16.sp)
                             Icon(
                                 painter = painterResource(id = if (isBalanceVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off),
-                                contentDescription = if (isBalanceVisible) "Ocultar balance" else "Mostrar balance",
+                                contentDescription = if (isBalanceVisible) 
+                                    stringResource(R.string.hide_balance) 
+                                else 
+                                    stringResource(R.string.show_balance),
                                 modifier = Modifier
                                     .size(20.dp)
                                     .clickable { isBalanceVisible = !isBalanceVisible },
@@ -157,21 +178,45 @@ fun Dashboard(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
-                            ActionIcon(R.drawable.ic_deposit, "Depositar", Color(0xFF66344A), onClick = { navController.navigate("deposit") }) // Color morado
-                            ActionIcon(R.drawable.ic_transfer, "Transferir", Color(0xFFE08453), onClick = { navController.navigate("transfer")}) // Color amarillo
-                            ActionIcon(R.drawable.ic_qr, "Pagar", Color(0xFFFFBC52), onClick = { showPaymentDialog = true }) // Color rojo
+                            ActionIcon(
+                                R.drawable.ic_deposit, 
+                                stringResource(R.string.deposit), 
+                                Color(0xFF66344A),
+                                onClick = { navController.navigate("deposit") }
+                            )
+                            ActionIcon(
+                                R.drawable.ic_transfer, 
+                                stringResource(R.string.transfer), 
+                                Color(0xFFE08453),
+                                onClick = { navController.navigate("transfer") }
+                            )
+                            ActionIcon(
+                                R.drawable.ic_qr, 
+                                stringResource(R.string.pay), 
+                                Color(0xFFFFBC52),
+                                onClick = { showPaymentDialog = true }) 
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Text("Servicios", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.services), 
+                    color = Color.White, 
+                    fontSize = 18.sp, 
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 GridServices(navController)
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Text("Ofertas Especiales", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.special_offers), 
+                    color = Color.White, 
+                    fontSize = 18.sp, 
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 SpecialOffers()
             }
@@ -180,13 +225,29 @@ fun Dashboard(
         }
     }
 
+    // Diálogo de ajustes
+    if (showSettingsDialog) {
+        SettingsDialog(
+            onDismiss = { showSettingsDialog = false },
+            onLanguageChange = { language ->
+                onLanguageChange(language)
+                showSettingsDialog = false
+            },
+            onLogout = {
+                navController.navigate("login") {
+                    popUpTo("dashboard") { inclusive = true }
+                }
+            }
+        )
+    }
+
     if (showPaymentDialog) {
         AlertDialog(
             onDismissRequest = { showPaymentDialog = false },
-            title = { Text(text = "Selecciona el método de pago") },
+            title = { Text(text = stringResource(R.string.select_payment_method)) },
             text = {
                 Column {
-                    Text("Elige una opción para continuar:")
+                    Text(stringResource(R.string.choose_option))
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
@@ -195,7 +256,7 @@ fun Dashboard(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Pagar con QR")
+                        Text(stringResource(R.string.pay_with_qr))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -205,7 +266,7 @@ fun Dashboard(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Pagar con saldo en cuenta")
+                        Text(stringResource(R.string.pay_with_balance))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -215,19 +276,116 @@ fun Dashboard(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Pagar con tarjeta")
+                        Text(stringResource(R.string.pay_with_card))
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showPaymentDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
     }
 }
+
+@Composable
+fun SettingsDialog(
+    onDismiss: () -> Unit,
+    onLanguageChange: (String) -> Unit,
+    onLogout: () -> Unit
+) {
+    val context = LocalContext.current
+    var selectedLanguage by remember { 
+        mutableStateOf(PreferencesManager.getLanguage(context))
+    }
+
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text(stringResource(R.string.settings), color = Color.White) },
+        text = {
+            Column {
+                // Opciones de idioma
+                LanguageOption(
+                    language = "Español",
+                    selectedLanguage = selectedLanguage,
+                    onSelect = { selectedLanguage = "es" }
+                )
+                LanguageOption(
+                    language = "English",
+                    selectedLanguage = selectedLanguage,
+                    onSelect = { selectedLanguage = "en" }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(
+                        onClick = { onDismiss() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Text(stringResource(R.string.cancel), color = Color.White)
+                    }
+
+                    Button(
+                        onClick = {
+                            onLanguageChange(selectedLanguage)
+                            onDismiss()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Text(stringResource(R.string.save), color = Color.White)
+                    }
+                }
+
+                Button(
+                    onClick = { onLogout() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.logout), color = Color.White)
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {},
+        containerColor = Color(0xFF2C2C2E),
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+fun LanguageOption(language: String, selectedLanguage: String, onSelect: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onSelect)
+            .padding(8.dp)
+    ) {
+        RadioButton(
+            selected = (language == "Español" && selectedLanguage == "es") ||
+                    (language == "English" && selectedLanguage == "en"),
+            onClick = onSelect,
+            colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF9C8AE0))
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = language, color = Color.White, fontSize = 16.sp)
+    }
+}
+
 
 @Composable
 fun ActionIcon(
@@ -243,14 +401,14 @@ fun ActionIcon(
         Box(
             modifier = Modifier
                 .clickable(onClick = onClick)
-                .size(60.dp) // Tamaño del círculo
-                .background(color = backgroundColor, shape = CircleShape), // Fondo circular
+                .size(60.dp)
+                .background(color = backgroundColor, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = text,
-                tint = Color.White, // Color del ícono
+                tint = Color.White,
                 modifier = Modifier.size(40.dp)
             )
         }
@@ -269,26 +427,26 @@ fun GridServices(navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            ServiceCard("Movimientos", R.drawable.ic_movements) { navController.navigate("movements") }
-            ServiceCard("Tarjetas", R.drawable.ic_cards) { navController.navigate("cards") }
-            ServiceCard("Inversiones", R.drawable.ic_invest) { navController.navigate("invest") }
+            ServiceCard(R.string.movements, R.drawable.ic_movements) { navController.navigate("movements") }
+            ServiceCard(R.string.cards, R.drawable.ic_cards) { navController.navigate("cards") }
+            ServiceCard(R.string.investments, R.drawable.ic_invest) { navController.navigate("invest") }
         }
     }
 }
 
 @Composable
-fun ServiceCard(title: String, icon: Int, onClick: () -> Unit) {
+fun ServiceCard(title: Int, icon: Int, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
-            .padding(8.dp) // Espaciado entre tarjetas
+            .padding(8.dp)
             .size(100.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // Elevación más destacada
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize() // Asegúrate de ocupar todo el tamaño de la tarjeta
+                .fillMaxSize()
                 .background(Color(0xFFEDEDED))
                 .padding(8.dp),
             verticalArrangement = Arrangement.Center,
@@ -296,19 +454,19 @@ fun ServiceCard(title: String, icon: Int, onClick: () -> Unit) {
         ) {
             Icon(
                 painter = painterResource(id = icon),
-                contentDescription = title,
+                contentDescription = stringResource(id = title),
                 tint = Color.Unspecified,
                 modifier = Modifier
-                    .size(48.dp) // Tamaño del ícono ajustado
-                    .padding(bottom = 4.dp) // Espaciado entre el ícono y el texto
+                    .size(48.dp)
+                    .padding(bottom = 4.dp)
             )
             Text(
-                text = title,
+                text = stringResource(id = title),
                 color = Color.Black,
-                fontSize = 12.sp, // Tamaño de fuente más adecuado
-                maxLines = 1, // Evitar que el texto se desborde
+                fontSize = 12.sp,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center // Centrar texto
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -320,15 +478,15 @@ fun SpecialOffers() {
     var currentPage by remember { mutableStateOf(0) }
     val pagerState = rememberPagerState(pageCount = { 3 })
     val offers = listOf(
-        Offer("JUNK FOOD", "Hasta 60% de descuento", R.drawable.ic_burger, Color(0xFF66344A)),
-        Offer("DEPORTES", "30% de descuento", R.drawable.ic_sports, Color(0xFFE08453)),
-        Offer("CINE", "2x1 en entradas", R.drawable.ic_cinema, Color(0xFFFFBC52))
+        Offer(stringResource(R.string.junk_food), stringResource(R.string.junk_food_desc), R.drawable.ic_burger, Color(0xFF66344A)),
+        Offer(stringResource(R.string.sports), stringResource(R.string.sports_desc), R.drawable.ic_sports, Color(0xFFE08453)), 
+        Offer(stringResource(R.string.cinema), stringResource(R.string.cinema_desc), R.drawable.ic_cinema, Color(0xFFFFBC52))
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.height(200.dp) // Ajusta la altura del carrusel
+            modifier = Modifier.height(200.dp)
         ) { page ->
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -365,13 +523,12 @@ fun SpecialOffers() {
                         modifier = Modifier
                             .size(100.dp)
                             .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop // Asegura que la imagen se recorte adecuadamente
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
         }
 
-        // Indicador de las páginas
         Row(
             Modifier
                 .padding(top = 16.dp)
@@ -384,11 +541,21 @@ fun SpecialOffers() {
                         .padding(4.dp)
                         .clip(CircleShape)
                         .background(if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray)
-                        .size(if (pagerState.currentPage == iteration) 12.dp else 8.dp) // Tamaño dinámico
+                        .size(if (pagerState.currentPage == iteration) 12.dp else 8.dp)
                 )
             }
         }
     }
+}
+
+private fun updateLanguage(context: Context, language: String) {
+    val locale = Locale(language)
+    Locale.setDefault(locale)
+    val config = Configuration(context.resources.configuration)
+    config.setLocale(locale)
+    context.createConfigurationContext(config)
+
+    (context as? ComponentActivity)?.recreate()
 }
 
 data class Offer(

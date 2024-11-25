@@ -10,6 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.res.stringResource
+import com.example.app_grupo13.R
 
 @Composable
 fun NavBar(navController: NavController) {
@@ -21,8 +23,8 @@ fun NavBar(navController: NavController) {
         containerColor = Color(0xFF202020)
     ) {
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.List, contentDescription = "Movimientos") },
-            label = { Text("Movimientos") },
+            icon = { Icon(Icons.Filled.List, contentDescription = stringResource(R.string.movements)) },
+            label = { Text(stringResource(R.string.movements)) },
             selected = currentRoute == "movements",
             onClick = { navController.navigate("movements") },
             colors = NavigationBarItemDefaults.colors(
@@ -33,8 +35,8 @@ fun NavBar(navController: NavController) {
             )
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
-            label = { Text("Inicio") },
+            icon = { Icon(Icons.Filled.Home, contentDescription = stringResource(R.string.home)) },
+            label = { Text(stringResource(R.string.home)) },
             selected = currentRoute == "dashboard",
             onClick = { navController.navigate("dashboard") },
             colors = NavigationBarItemDefaults.colors(
@@ -45,8 +47,8 @@ fun NavBar(navController: NavController) {
             )
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Perfil") },
-            label = { Text("Perfil") },
+            icon = { Icon(Icons.Filled.AccountCircle, contentDescription = stringResource(R.string.profile)) },
+            label = { Text(stringResource(R.string.profile)) },
             selected = currentRoute == "profile",
             onClick = { navController.navigate("profile") },
             colors = NavigationBarItemDefaults.colors(
