@@ -1,6 +1,37 @@
 <resources>
-    <string name="app_name">Plum</string>
-    <string name="take_photo">Take Photo</string>
-    <string name="start_capture">Start Capture</string>
-    <string name="stop_capture">Stop Capture</string>
+    <string name="app_name" translatable="false">Plum</string>
+    <string name="hello">Hola,</string>
+    <string name="balance" translatable="false">Balance</string>
+    <string name="services">Servicios</string>
+    <string name="profile">Perfil</string>
+    <string name="Logout">Cerrar sesión</string>
+    <string name="Login">Iniciar sesión</string>
+    <string name="Register">Registrarse</string>
+    <string name="Email">Correo electrónico</string>
+    <string name="Password">Contraseña</string>
+    <string name="ConfirmPassword">Confirmar contraseña</string>
+    <string name="Name">Nombre</string>
+    <string name="Lastname">Apellido</string>
+    <string name="Movements">Movimientos</string>
+    <string name="Cards">Tarjetas</string>
+    <string name="Investments">Inversiones</string>
+    <string name="Offers">Ofertas Especiales</string>
+    <string name="Settings">Ajustes</string>
+    <string name="Deposit">Depositar</string>
+    <string name="Transfer">Transferir</string>
+    <string name="Pay">Pagar</string>
+    <string name="userinfo">Información del usuario</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="availableBalance">Balance Disponible</string>
+    <string name="totalInvested">Total Invertido</string>
+    <string name="totalProfit">Retorno Total</string>
+    <string name="invesingAmount">Monto a invertir</string>
+    <string name="invest">Invertir</string>
+    <string name="investedactives">Inversiones Activas</string>
+    <string name="motto1">La forma más</string>
+    <string name="motto2">fácil de gestionar</string>
+    <string name="motto3">tu billetera</string>
+    <string name="haveAccount">¿Ya tienes una cuenta?</string>
+    <string name="loginHere">Inicia sesión aquí</string>
 </resources>

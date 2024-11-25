@@ -1,6 +1,11 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.app_grupo13.ui.screens
 
 import PrimaryButton
+import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,20 +29,40 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.recreate
 import com.example.app_grupo13.R
 import com.example.app_grupo13.ui.theme.DarkBackground
 import com.example.app_grupo13.ui.theme.HintText
 import com.example.app_grupo13.ui.theme.LightText
 
 
+
+
 @Composable
 fun WelcomeScreen(navController: NavController) {
+    val context = LocalContext.current
+    val defaultLocale = java.util.Locale("en") // Cambia "en" al idioma predeterminado que deseas
+    java.util.Locale.setDefault(defaultLocale)
+
+    val config = context.resources.configuration
+    config.setLocale(defaultLocale)
+    context.createConfigurationContext(config)
+
+    val currentLanguage = context.resources.configuration.locales[0].language
+    var selectedLanguage by remember { mutableStateOf(if (currentLanguage == "es") "Español" else "English") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,19 +116,19 @@ fun WelcomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = "La forma más",
+                text = stringResource(id = R.string.motto1),
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "fácil de gestionar",
+                text = stringResource(id = R.string.motto2),
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "tu billetera",
+                text = stringResource(id = R.string.motto3),
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color(0xFFFAA629), // "tu billetera" en amarillo
                 fontWeight = FontWeight.Bold
@@ -150,6 +175,9 @@ fun WelcomeScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable { navController.navigate("login") }
             )
+
         }
     }
+
+
 }

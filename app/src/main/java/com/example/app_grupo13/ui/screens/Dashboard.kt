@@ -1,7 +1,8 @@
 package com.example.app_grupo13.ui.screens
 
-import android.text.style.ClickableSpan
-import android.widget.RadioButton
+import android.content.Context
+import android.content.res.Configuration
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,7 +12,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -21,6 +21,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -28,31 +29,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
 import com.example.app_grupo13.ui.components.NavBar
 import com.example.app_grupo13.ui.viewmodels.DashboardViewModel
 import com.example.app_grupo13.ui.viewmodels.DashboardViewModelFactory
-import androidx.compose.material3.RadioButton
+import java.util.Locale
 
 
 @Composable
 fun Dashboard(
+    onLanguageChange: (String) -> Unit,
     navController: NavController,
     viewModel: DashboardViewModel = viewModel(
         factory = DashboardViewModelFactory(LocalContext.current)
     )
 ) {
+    val context = LocalContext.current
+    val currentLanguage = context.resources.configuration.locales[0].language
+    println(currentLanguage)
+    var selectedLanguage by remember { mutableStateOf(if (currentLanguage == "es") "Español" else "English") }
     var isBalanceVisible by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) } // Estado del diálogo
     val user = viewModel.user.value
@@ -88,7 +94,7 @@ fun Dashboard(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Column {
-                        Text("Hola,", color = Color.White, fontSize = 16.sp)
+                        Text(stringResource(id = R.string.hello), color = Color.White, fontSize = 16.sp)
                         if (isLoading) {
                             Text(
                                 text = "Cargando...",
@@ -210,12 +216,17 @@ fun Dashboard(
     }
 }
 
+
+
+
+
 @Composable
 fun SettingsDialog(
     onDismiss: () -> Unit,
     onLanguageChange: (String) -> Unit,
     onLogout: () -> Unit
 ) {
+    var context = LocalContext.current
     var selectedLanguage by remember { mutableStateOf("es") } // Estado para el idioma seleccionado
 
     AlertDialog(
@@ -223,39 +234,17 @@ fun SettingsDialog(
         title = { Text("Ajustes", color = Color.White) },
         text = {
             Column {
-                // Opción para Español
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedLanguage = "es" }
-                        .padding(8.dp)
-                ) {
-                    RadioButton(
-                        selected = selectedLanguage == "es",
-                        onClick = { selectedLanguage = "es" },
-                        colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF9C8AE0))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Español", color = Color.White, fontSize = 16.sp)
-                }
-
-                // Opción para Inglés
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedLanguage = "en" }
-                        .padding(8.dp)
-                ) {
-                    RadioButton(
-                        selected = selectedLanguage == "en",
-                        onClick = { selectedLanguage = "en" },
-                        colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF9C8AE0))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Inglés", color = Color.White, fontSize = 16.sp)
-                }
+                // Opciones de idioma
+                LanguageOption(
+                    language = "Español",
+                    selectedLanguage = selectedLanguage,
+                    onSelect = { selectedLanguage = "es" }
+                )
+                LanguageOption(
+                    language = "Inglés",
+                    selectedLanguage = selectedLanguage,
+                    onSelect = { selectedLanguage = "en" }
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -269,18 +258,22 @@ fun SettingsDialog(
                     Button(
                         onClick = { onDismiss() },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
-                        modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp)
                     ) {
                         Text("Cancelar", color = Color.White)
                     }
 
                     Button(
                         onClick = {
-                            onLanguageChange(selectedLanguage)
+                            updateLanguage(context, selectedLanguage) // Actualiza el idioma
                             onDismiss()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
-                        modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp)
                     ) {
                         Text("Guardar", color = Color.White)
                     }
@@ -303,20 +296,27 @@ fun SettingsDialog(
     )
 }
 
-
-
 @Composable
 fun LanguageOption(language: String, selectedLanguage: String, onSelect: (String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onSelect(language) }
+            .clickable {
+                onSelect(
+                    if (language == "Español") "es" else "en"
+                )
+            }
             .padding(8.dp)
     ) {
         RadioButton(
-            selected = language == selectedLanguage,
-            onClick = { onSelect(language) },
+            selected = (language == "Español" && selectedLanguage == "es") ||
+                    (language == "Inglés" && selectedLanguage == "en"),
+            onClick = {
+                onSelect(
+                    if (language == "Español") "es" else "en"
+                )
+            },
             colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF9C8AE0))
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -486,6 +486,18 @@ fun SpecialOffers() {
         }
     }
 }
+
+private fun updateLanguage(context: Context, language: String) {
+    val locale = Locale(language)
+    Locale.setDefault(locale)
+    val config = Configuration(context.resources.configuration)
+    config.setLocale(locale)
+    context.createConfigurationContext(config)
+
+    // Notify the change to UI
+    (context as? ComponentActivity)?.recreate()
+}
+
 
 data class Offer(
     val title: String,

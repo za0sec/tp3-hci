@@ -39,6 +39,7 @@ import com.example.app_grupo13.ui.viewmodels.VerifyViewModelFactory
 import android.Manifest
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.provider.MediaStore
 import androidx.appcompat.app.AppCompatActivity
@@ -84,8 +85,23 @@ class MainActivity : ComponentActivity() {
     private lateinit var cameraExecutor: ExecutorService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Establecer el idioma a español
+        val locale = Locale("es")
+        Locale.setDefault(locale)
+
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+
+        baseContext.createConfigurationContext(config)
+
+
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
+
+
         setContentView(viewBinding.root)
+
+
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -201,6 +217,7 @@ class MainActivity : ComponentActivity() {
 
 
 
+
 @Composable
 fun AppNavigation(userViewModel: UserViewModel) {
     val navController = rememberNavController()
@@ -221,7 +238,9 @@ fun AppNavigation(userViewModel: UserViewModel) {
                 navController = navController,
                 viewModel = viewModel(
                     factory = DashboardViewModelFactory(LocalContext.current)
-                )
+
+                ),
+                onLanguageChange = { /* Aquí puedes manejar el cambio de idioma si es necesario */ }
             ) 
         }
         composable("movements") { MovementsScreen(navController) }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello,</string>
+    <string name="Settings">Settings</string>
+    <string name="Deposit">Deposit</string>
+    <string name="Transfer">Transfer</string>
+    <string name="Pay">Pay</string>
+    <string name="userinfo">User Info</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="availableBalance">Available Balance</string>
+    <string name="totalInvested">Total Invested</string>
+    <string name="totalProfit">Profit</string>
+    <string name="invesingAmount">Amount invested</string>
+    <string name="invest">Invest</string>
+    <string name="investedactives">Active Investments</string>
+    <string name="motto3">your wallet</string>
+    <string name="haveAccount">Already have an account?</string>
+    <string name="loginHere">LogIn here</string>
+    <string name="services">Services</string>
+    <string name="profile">Profile</string>
+    <string name="Logout">LogOut</string>
+    <string name="Login">LogIn</string>
+    <string name="Register">SignUp</string>
+    <string name="Email">Email</string>
+    <string name="Password">Password</string>
+    <string name="ConfirmPassword">Confirm password</string>
+    <string name="Name">Name</string>
+    <string name="Lastname">Last Name</string>
+    <string name="Movements">Movements</string>
+    <string name="Cards">Cards</string>
+    <string name="Investments">Investments</string>
+    <string name="Offers">Special Offers</string>
+    <string name="motto1">The easiest way</string>
+    <string name="motto2">to manage</string>
+</resources>
