@@ -25,6 +25,8 @@ import com.example.app_grupo13.ui.viewmodels.CardsViewModelFactory
 import com.example.app_grupo13.ui.viewmodels.PaymentViewModel
 import com.example.app_grupo13.ui.viewmodels.PaymentViewModelFactory
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.example.app_grupo13.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +52,6 @@ fun PayWithCardScreen(
 
     LaunchedEffect(success) {
         if (success == true) {
-            // Pago exitoso, navegar de vuelta
             navController.popBackStack()
         }
     }
@@ -61,28 +62,26 @@ fun PayWithCardScreen(
             .background(Color(0xFF17171F))
             .padding(16.dp)
     ) {
-        // Header
         IconButton(
             onClick = { navController.popBackStack() }
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
+                contentDescription = stringResource(R.string.back_arrow),
                 tint = Color.White
             )
         }
 
         Text(
-            text = "Pagar con Tarjeta",
+            text = stringResource(R.string.pay_with_card),
             color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 16.dp)
         )
 
-        // Selección de tarjeta
         Text(
-            text = "Selecciona una tarjeta",
+            text = stringResource(R.string.select_card),
             color = Color.White,
             fontSize = 16.sp,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -104,7 +103,6 @@ fun PayWithCardScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campos de entrada
         OutlinedTextField(
             value = amount,
             onValueChange = { 
@@ -112,7 +110,7 @@ fun PayWithCardScreen(
                     amount = it
                 }
             },
-            label = { Text("Monto") },
+            label = { Text(stringResource(R.string.amount)) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
@@ -127,7 +125,7 @@ fun PayWithCardScreen(
         OutlinedTextField(
             value = receiverEmail,
             onValueChange = { receiverEmail = it },
-            label = { Text("Email del destinatario") },
+            label = { Text(stringResource(R.string.receiver_email)) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
@@ -139,16 +137,14 @@ fun PayWithCardScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón de pago
         Button(
             onClick = { showConfirmDialog = true },
             modifier = Modifier.fillMaxWidth(),
             enabled = selectedCard != null && amount.isNotEmpty() && receiverEmail.isNotEmpty() && !isLoading
         ) {
-            Text("Realizar Pago")
+            Text(stringResource(R.string.make_payment))
         }
 
-        // Mostrar errores
         error?.let { errorMessage ->
             Text(
                 text = errorMessage,
@@ -158,13 +154,12 @@ fun PayWithCardScreen(
         }
     }
 
-    // Diálogo de confirmación
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Confirmar Pago") },
+            title = { Text(stringResource(R.string.confirm_payment)) },
             text = { 
-                Text("¿Deseas realizar el pago de $${amount} a ${receiverEmail}?")
+                Text(stringResource(R.string.payment_confirmation, amount, receiverEmail))
             },
             confirmButton = {
                 Button(
@@ -177,12 +172,12 @@ fun PayWithCardScreen(
                         }
                     }
                 ) {
-                    Text("Confirmar")
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,7 +59,7 @@ fun InvestmentScreen(
     ) {
         // Encabezado
         Text(
-            text = "Inversiones",
+            text = stringResource(R.string.investments),
             color = Color.White,
             fontSize = 28.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -74,13 +75,13 @@ fun InvestmentScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Inversión Actual: $${currentInvestment?.investment ?: 0}",
+                    text = stringResource(R.string.current_investment, currentInvestment?.investment ?: 0),
                     color = Color.White,
                     fontSize = 18.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Tasa Diaria: ${dailyInterest?.interest ?: 0}%",
+                    text = stringResource(R.string.daily_rate, dailyInterest?.interest ?: 0),
                     color = Color.White,
                     fontSize = 18.sp
                 )
@@ -97,7 +98,7 @@ fun InvestmentScreen(
                     inputAmount = it
                 }
             },
-            label = { Text("Monto a invertir", color = Color.Gray) },
+            label = { Text(stringResource(R.string.investment_amount), color = Color.Gray) },
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color(0xFF1C1C1E),
                 focusedIndicatorColor = Color(0xFF7059AB)
@@ -117,7 +118,7 @@ fun InvestmentScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Invertir", color = Color.White)
+                Text(stringResource(R.string.invest), color = Color.White)
             }
             
             Spacer(modifier = Modifier.width(8.dp))
@@ -128,7 +129,7 @@ fun InvestmentScreen(
                 modifier = Modifier.weight(1f),
                 enabled = currentInvestment?.investment ?: 0.0 > 0
             ) {
-                Text("Desinvertir", color = Color.White)
+                Text(stringResource(R.string.divest), color = Color.White)
             }
         }
 
@@ -136,7 +137,7 @@ fun InvestmentScreen(
 
         // Lista de retornos diarios
         Text(
-            text = "Retornos Diarios",
+            text = stringResource(R.string.daily_returns),
             color = Color.White,
             fontSize = 20.sp,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -152,19 +153,19 @@ fun InvestmentScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Retorno: $${dailyReturn.returnGiven}",
+                            text = stringResource(R.string.return_amount, dailyReturn.returnGiven),
                             color = Color.White
                         )
                         Text(
-                            text = "Balance anterior: $${dailyReturn.balanceBefore}",
+                            text = stringResource(R.string.previous_balance, dailyReturn.balanceBefore),
                             color = Color.Gray
                         )
                         Text(
-                            text = "Balance posterior: $${dailyReturn.balanceAfter}",
+                            text = stringResource(R.string.new_balance, dailyReturn.balanceAfter),
                             color = Color.Gray
                         )
                         Text(
-                            text = "Fecha: ${dailyReturn.createdAt}",
+                            text = stringResource(R.string.date, dailyReturn.createdAt),
                             color = Color.Gray
                         )
                     }
@@ -177,8 +178,8 @@ fun InvestmentScreen(
     if (showInvestDialog) {
         AlertDialog(
             onDismissRequest = { showInvestDialog = false },
-            title = { Text("Confirmar Inversión") },
-            text = { Text("¿Deseas invertir $${inputAmount}?") },
+            title = { Text(stringResource(R.string.confirm_investment)) },
+            text = { Text(stringResource(R.string.confirm_investment_amount, inputAmount)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -192,12 +193,12 @@ fun InvestmentScreen(
                         }
                     }
                 ) {
-                    Text("Confirmar")
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
                 Button(onClick = { showInvestDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -207,8 +208,8 @@ fun InvestmentScreen(
     if (showDivestDialog) {
         AlertDialog(
             onDismissRequest = { showDivestDialog = false },
-            title = { Text("Confirmar Desinversión") },
-            text = { Text("¿Deseas desinvertir $${inputAmount}?") },
+            title = { Text(stringResource(R.string.confirm_divestment)) },
+            text = { Text(stringResource(R.string.confirm_divestment_amount, inputAmount)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -222,12 +223,12 @@ fun InvestmentScreen(
                         }
                     }
                 ) {
-                    Text("Confirmar")
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
                 Button(onClick = { showDivestDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -258,9 +259,9 @@ fun InvestmentTypeOption(
     ) {
         // Icono correspondiente
         val icon = when (type) {
-            "Crypto" -> R.drawable.ic_bitcoin
-            "Acciones" -> R.drawable.ic_chart
-            "Bonos" -> R.drawable.ic_bank
+            stringResource(R.string.crypto) -> R.drawable.ic_bitcoin
+            stringResource(R.string.stocks) -> R.drawable.ic_chart
+            stringResource(R.string.bonds) -> R.drawable.ic_bank
             else -> null
         }
         icon?.let {
@@ -292,11 +293,11 @@ fun BalanceCard(availableBalance: Double, totalInvested: Double, totalReturn: Do
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            BalanceRow(label = "Balance Disponible", amount = availableBalance)
+            BalanceRow(label = stringResource(R.string.available_balance), amount = availableBalance)
             Spacer(modifier = Modifier.height(8.dp))
-            BalanceRow(label = "Total Invertido", amount = totalInvested)
+            BalanceRow(label = stringResource(R.string.total_invested), amount = totalInvested)
             Spacer(modifier = Modifier.height(8.dp))
-            BalanceRow(label = "Retorno Total", amount = totalReturn)
+            BalanceRow(label = stringResource(R.string.total_return), amount = totalReturn)
         }
     }
 }
@@ -319,9 +320,9 @@ fun InvestmentCard(investment: Investment, onWithdraw: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
 
                 val icon = when (investment.type) {
-                    "Inversión en Crypto" -> R.drawable.ic_bitcoin
-                    "Inversión en Acciones" -> R.drawable.ic_chart
-                    "Inversión en Bonos" -> R.drawable.ic_bank
+                    stringResource(R.string.crypto_investment) -> R.drawable.ic_bitcoin
+                    stringResource(R.string.stocks_investment) -> R.drawable.ic_chart
+                    stringResource(R.string.bonds_investment) -> R.drawable.ic_bank
                     else -> null
                 }
                 icon?.let {
@@ -335,12 +336,12 @@ fun InvestmentCard(investment: Investment, onWithdraw: () -> Unit) {
                 Column {
                     Text(text = investment.type, color = Color.White, fontSize = 16.sp)
                     Text(
-                        text = "Monto: ${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.amount)}",
+                        text = stringResource(R.string.amount_format, NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.amount)),
                         color = Color.Gray,
                         fontSize = 14.sp
                     )
                     Text(
-                        text = "Rendimiento Diario: ${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.dailyReturn)}",
+                        text = stringResource(R.string.daily_return_format, NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(investment.dailyReturn)),
                         color = Color.Gray,
                         fontSize = 14.sp
                     )
@@ -350,7 +351,7 @@ fun InvestmentCard(investment: Investment, onWithdraw: () -> Unit) {
                 onClick = onWithdraw,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
-                Text(text = "Rescatar", color = Color.White)
+                Text(text = stringResource(R.string.withdraw), color = Color.White)
             }
         }
     }

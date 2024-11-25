@@ -29,6 +29,8 @@ import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import android.util.Log
 import androidx.compose.material.icons.filled.ArrowBack
+import com.example.app_grupo13.R
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +68,7 @@ fun LoginScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back Arrow",
+                        contentDescription = stringResource(R.string.back_arrow),
                         tint = Color.White
                     )
                 }
@@ -76,7 +78,7 @@ fun LoginScreen(
 
             // Título
             Text(
-                text = "Iniciá sesión",
+                text = stringResource(R.string.login_title),
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = 32.sp,
@@ -90,12 +92,12 @@ fun LoginScreen(
                 value = email,
                 onValueChange = { email = it },
                 singleLine = true,
-                label = { Text("Email", color = Color.Gray) },
-                placeholder = { Text("Ingresa tu email", color = Color.Gray) },
+                label = { Text(stringResource(R.string.email), color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.enter_email), color = Color.Gray) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.MailOutline,
-                        contentDescription = "Email Icon",
+                        contentDescription = stringResource(R.string.email_icon),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -117,14 +119,14 @@ fun LoginScreen(
                 value = password,
                 onValueChange = { password = it },
                 singleLine = true,
-                label = { Text("Contraseña", color = Color.Gray) },
-                placeholder = { Text("Ingresa tu contraseña", color = Color.Gray) },
+                label = { Text(stringResource(R.string.password), color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.enter_password), color = Color.Gray) },
                 visualTransformation =
                 if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "Password Icon",
+                        contentDescription = stringResource(R.string.password_icon),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -147,12 +149,12 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "¿Olvidaste tu contraseña?",
+                    text = stringResource(R.string.forgot_password),
                     color = Color.Gray,
                     fontSize = 14.sp
                 )
                 Text(
-                    text = "Recuperá tu contraseña aquí",
+                    text = stringResource(R.string.recover_password),
                     color = Color(0xFF9C8AE0),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
@@ -184,7 +186,7 @@ fun LoginScreen(
                     )
                 } else {
                     Text(
-                        text = "Continuar",
+                        text = stringResource(R.string.continue_button),
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold

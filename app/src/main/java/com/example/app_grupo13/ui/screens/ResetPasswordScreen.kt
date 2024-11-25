@@ -21,6 +21,8 @@ import androidx.navigation.NavController
 import com.example.app_grupo13.ui.viewmodels.RecoverPasswordViewModel
 import com.example.app_grupo13.ui.viewmodels.RecoverPasswordViewModelFactory
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.example.app_grupo13.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +47,6 @@ fun ResetPasswordScreen(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
-            // Flecha de regreso
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -58,7 +59,7 @@ fun ResetPasswordScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back Arrow",
+                        contentDescription = stringResource(R.string.back_arrow),
                         tint = Color.White
                     )
                 }
@@ -66,9 +67,8 @@ fun ResetPasswordScreen(
 
             Spacer(modifier = Modifier.height(200.dp))
             
-            // Título
             Text(
-                text = "Recuperar contraseña",
+                text = stringResource(R.string.recover_password),
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = 32.sp,
@@ -79,17 +79,16 @@ fun ResetPasswordScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo de Email
             TextField(
                 value = email,
                 onValueChange = { email = it },
                 singleLine = true,
-                label = { Text("Email", color = Color.Gray) },
-                placeholder = { Text("Ingresa tu correo electrónico", color = Color.Gray) },
+                label = { Text(stringResource(R.string.email), color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.enter_email), color = Color.Gray) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.MailOutline,
-                        contentDescription = "Email Icon",
+                        contentDescription = stringResource(R.string.email_icon),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -116,9 +115,8 @@ fun ResetPasswordScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Texto explicativo
             Text(
-                text = "Ingresa tu correo electrónico para enviar un enlace de restablecimiento",
+                text = stringResource(R.string.reset_password_instructions),
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -127,7 +125,6 @@ fun ResetPasswordScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón de Continuar
             Button(
                 onClick = {
                     scope.launch {
@@ -152,7 +149,7 @@ fun ResetPasswordScreen(
                     )
                 } else {
                     Text(
-                        text = "Continuar",
+                        text = stringResource(R.string.continue_button),
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold

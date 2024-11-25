@@ -17,6 +17,8 @@ import androidx.navigation.NavController
 import com.example.app_grupo13.ui.viewmodels.PaymentViewModel
 import com.example.app_grupo13.ui.viewmodels.PaymentViewModelFactory
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.example.app_grupo13.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,13 +52,13 @@ fun PayWithBalanceScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
+                contentDescription = stringResource(R.string.back_arrow),
                 tint = Color.White
             )
         }
 
         Text(
-            text = "Pagar con Saldo",
+            text = stringResource(R.string.pay_with_balance),
             color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -70,7 +72,7 @@ fun PayWithBalanceScreen(
                     amount = it
                 }
             },
-            label = { Text("Monto") },
+            label = { Text(stringResource(R.string.amount)) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
@@ -85,7 +87,7 @@ fun PayWithBalanceScreen(
         OutlinedTextField(
             value = receiverEmail,
             onValueChange = { receiverEmail = it },
-            label = { Text("Email del destinatario") },
+            label = { Text(stringResource(R.string.receiver_email)) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
@@ -102,7 +104,7 @@ fun PayWithBalanceScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = amount.isNotEmpty() && receiverEmail.isNotEmpty() && !isLoading
         ) {
-            Text("Realizar Pago")
+            Text(stringResource(R.string.make_payment))
         }
 
         error?.let { errorMessage ->
@@ -117,9 +119,9 @@ fun PayWithBalanceScreen(
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Confirmar Pago") },
+            title = { Text(stringResource(R.string.confirm_payment)) },
             text = { 
-                Text("¿Deseas realizar el pago de $${amount} a ${receiverEmail}?")
+                Text(stringResource(R.string.payment_confirmation, amount, receiverEmail))
             },
             confirmButton = {
                 Button(
@@ -132,12 +134,12 @@ fun PayWithBalanceScreen(
                         }
                     }
                 ) {
-                    Text("Confirmar")
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

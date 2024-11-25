@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -69,7 +70,7 @@ fun CardsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back Arrow",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }
@@ -83,7 +84,7 @@ fun CardsScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Tarjetas",
+                text = stringResource(R.string.cards),
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
@@ -107,7 +108,7 @@ fun CardsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = errorMsg,
+                    text = stringResource(R.string.unknown_error),
                     color = Color.Red,
                     fontSize = 16.sp
                 )
@@ -143,7 +144,7 @@ fun CardsScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Agregar tarjeta"
+                contentDescription = stringResource(R.string.add_card)
             )
         }
     }
@@ -186,8 +187,8 @@ fun CardItem(card: Card, onDelete: () -> Unit) {
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Confirmar eliminación") },
-            text = { Text("¿Estás seguro que deseas eliminar esta tarjeta?") },
+            title = { Text(stringResource(R.string.confirm_delete)) },
+            text = { Text(stringResource(R.string.confirm_delete_card)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -196,12 +197,12 @@ fun CardItem(card: Card, onDelete: () -> Unit) {
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
-                    Text("Eliminar")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -264,7 +265,7 @@ fun FrontCardContent(card: Card, onDelete: () -> Unit) {
                     )
                     Icon(
                         painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = "Eliminar tarjeta",
+                        contentDescription = stringResource(R.string.delete_card),
                         tint = Color.White,
                         modifier = Modifier
                             .size(24.dp)
@@ -286,7 +287,7 @@ fun FrontCardContent(card: Card, onDelete: () -> Unit) {
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "TITULAR",
+                            text = stringResource(R.string.card_holder),
                             color = Color.White.copy(alpha = 0.7f),
                             fontSize = 12.sp
                         )
@@ -301,7 +302,7 @@ fun FrontCardContent(card: Card, onDelete: () -> Unit) {
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "VENCE",
+                            text = stringResource(R.string.expires),
                             color = Color.White.copy(alpha = 0.7f),
                             fontSize = 12.sp
                         )
@@ -353,7 +354,7 @@ fun BackCardContent(card: Card) {
                 card.cvv?.let { cvv ->
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "CVV",
+                            text = stringResource(R.string.cvv),
                             color = Color.White.copy(alpha = 0.7f),
                             fontSize = 12.sp
                         )
@@ -387,34 +388,26 @@ fun AddCardDialog(
     var expiryDateError by remember { mutableStateOf<String?>(null) }
     var cvvError by remember { mutableStateOf<String?>(null) }
 
-    // Validaciones en tiempo real usando LaunchedEffect
-    LaunchedEffect(cardNumber) {
-        if (cardNumber.isNotEmpty()) {
-            validateCardNumber(cardNumber) { error -> cardNumberError = error }
-        }
+    // Validaciones en tiempo real
+    if (cardNumber.isNotEmpty()) {
+        validateCardNumber(cardNumber) { error -> cardNumberError = error }
     }
 
-    LaunchedEffect(cardHolder) {
-        if (cardHolder.isNotEmpty()) {
-            validateCardHolder(cardHolder) { error -> cardHolderError = error }
-        }
+    if (cardHolder.isNotEmpty()) {
+        validateCardHolder(cardHolder) { error -> cardHolderError = error }
     }
 
-    LaunchedEffect(expiryDate) {
-        if (expiryDate.isNotEmpty()) {
-            validateExpiryDate(expiryDate) { error -> expiryDateError = error }
-        }
+    if (expiryDate.isNotEmpty()) {
+        validateExpiryDate(expiryDate) { error -> expiryDateError = error }
     }
 
-    LaunchedEffect(cvv) {
-        if (cvv.isNotEmpty()) {
-            validateCvv(cvv) { error -> cvvError = error }
-        }
+    if (cvv.isNotEmpty()) {
+        validateCvv(cvv) { error -> cvvError = error }
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Agregar Tarjeta") },
+        title = { Text(stringResource(R.string.add_card)) },
         text = {
             Column(
                 modifier = Modifier
@@ -428,7 +421,7 @@ fun AddCardDialog(
                             cardNumber = formatCardNumber(it)
                         }
                     },
-                    label = { Text("Número de Tarjeta") },
+                    label = { Text(stringResource(R.string.card_number)) },
                     isError = cardNumberError != null,
                     supportingText = { cardNumberError?.let { Text(it, color = MaterialTheme.colorScheme.error) } },
                     singleLine = true,
@@ -440,7 +433,7 @@ fun AddCardDialog(
                 OutlinedTextField(
                     value = cardHolder,
                     onValueChange = { cardHolder = it },
-                    label = { Text("Titular de la Tarjeta") },
+                    label = { Text(stringResource(R.string.card_holder)) },
                     isError = cardHolderError != null,
                     supportingText = { cardHolderError?.let { Text(it, color = MaterialTheme.colorScheme.error) } },
                     singleLine = true,
@@ -460,7 +453,7 @@ fun AddCardDialog(
                                 expiryDate = formatExpiryDate(it)
                             }
                         },
-                        label = { Text("MM/YY") },
+                        label = { Text(stringResource(R.string.expiry_date)) },
                         modifier = Modifier.weight(1f),
                         isError = expiryDateError != null,
                         supportingText = { expiryDateError?.let { Text(it, color = MaterialTheme.colorScheme.error) } },
@@ -476,7 +469,7 @@ fun AddCardDialog(
                                 cvv = it.filter { char -> char.isDigit() }
                             }
                         },
-                        label = { Text("CVV") },
+                        label = { Text(stringResource(R.string.cvv)) },
                         modifier = Modifier.width(100.dp),
                         isError = cvvError != null,
                         supportingText = { cvvError?.let { Text(it, color = MaterialTheme.colorScheme.error) } },
@@ -498,12 +491,12 @@ fun AddCardDialog(
                          cardNumberError == null && cardHolderError == null && 
                          expiryDateError == null && cvvError == null
             ) {
-                Text("Agregar")
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -543,36 +536,39 @@ data class CardData(
 )
 
 // Funciones de validación actualizadas
+@Composable
 private fun validateCardNumber(number: String, onError: (String?) -> Unit) {
     onError(when {
-        number.isEmpty() -> "El número de tarjeta es requerido"
-        number.filter { it.isDigit() }.length != 16 -> "El número debe tener 16 dígitos"
+        number.isEmpty() -> stringResource(R.string.card_number_required)
+        number.filter { it.isDigit() }.length != 16 -> stringResource(R.string.card_number_invalid)
         else -> null
     })
 }
 
+@Composable
 private fun validateCardHolder(holder: String, onError: (String?) -> Unit) {
     onError(when {
-        holder.isEmpty() -> "El titular es requerido"
-        holder.length < 3 -> "Nombre demasiado corto"
+        holder.isEmpty() -> stringResource(R.string.card_holder_required)
+        holder.length < 3 -> stringResource(R.string.card_holder_too_short)
         else -> null
     })
 }
 
+@Composable
 private fun validateExpiryDate(date: String, onError: (String?) -> Unit) {
     onError(when {
-        date.isEmpty() -> "La fecha es requerida"
-        date.length != 5 -> "Formato inválido (MM/YY)"
+        date.isEmpty() -> stringResource(R.string.expiry_date_required)
+        date.length != 5 -> stringResource(R.string.expiry_date_invalid_format)
         else -> {
             val parts = date.split("/")
             if (parts.size != 2) {
-                "Formato inválido (MM/YY)"
+                stringResource(R.string.expiry_date_invalid_format)
             } else {
                 val month = parts[0].toIntOrNull()
                 val year = parts[1].toIntOrNull()
                 when {
-                    month == null || year == null -> "Formato inválido"
-                    month !in 1..12 -> "Mes inválido"
+                    month == null || year == null -> stringResource(R.string.expiry_date_invalid_format)
+                    month !in 1..12 -> stringResource(R.string.expiry_date_invalid_month)
                     else -> null
                 }
             }
@@ -580,12 +576,12 @@ private fun validateExpiryDate(date: String, onError: (String?) -> Unit) {
     })
 }
 
+@Composable
 private fun validateCvv(cvv: String, onError: (String?) -> Unit) {
     onError(when {
-        cvv.isEmpty() -> "El CVV es requerido"
-        cvv.length != 3 -> "El CVV debe tener 3 dígitos"
-        !cvv.all { it.isDigit() } -> "El CVV solo debe contener números"
+        cvv.isEmpty() -> stringResource(R.string.cvv_required)
+        cvv.length != 3 -> stringResource(R.string.cvv_invalid_length)
+        !cvv.all { it.isDigit() } -> stringResource(R.string.cvv_invalid_format)
         else -> null
     })
 }
-

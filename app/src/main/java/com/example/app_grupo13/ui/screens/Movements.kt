@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,12 +60,12 @@ fun MovementsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Volver",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }
             Text(
-                text = "Movimientos",
+                text = stringResource(R.string.movements),
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -77,7 +78,7 @@ fun MovementsScreen(
             when {
                 error != null -> {
                     Text(
-                        text = error ?: "Error desconocido",
+                        text = error ?: stringResource(R.string.unknown_error),
                         color = Color.Red,
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -86,7 +87,7 @@ fun MovementsScreen(
                 }
                 payments.isEmpty() && !isLoading -> {
                     Text(
-                        text = "No hay movimientos para mostrar",
+                        text = stringResource(R.string.no_movements),
                         color = Color.White,
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -176,9 +177,9 @@ fun PaymentItem(payment: Payment) {
                 Column {
                     Text(
                         text = when (payment.type) {
-                            "CARD" -> "Pago con tarjeta"
-                            "BALANCE" -> "Transferencia"
-                            else -> "Movimiento"
+                            "CARD" -> stringResource(R.string.pay_with_card)
+                            "BALANCE" -> stringResource(R.string.transfer)
+                            else -> stringResource(R.string.movements)
                         },
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -216,4 +217,4 @@ private fun formatDate(dateString: String): String {
     } catch (e: Exception) {
         return dateString
     }
-}
+} 

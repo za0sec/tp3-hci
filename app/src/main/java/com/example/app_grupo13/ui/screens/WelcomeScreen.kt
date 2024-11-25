@@ -91,7 +91,7 @@ fun WelcomeScreen(navController: NavController) {
             // Logo
             Image(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo",
+                contentDescription = stringResource(R.string.logo_description),
                 modifier = Modifier
                     .size(170.dp) // Tamaño del logo
             )
@@ -99,7 +99,7 @@ fun WelcomeScreen(navController: NavController) {
             // Tarjetas
             Image(
                 painter = painterResource(id = R.drawable.ic_ccards),
-                contentDescription = "Tarjetas",
+                contentDescription = stringResource(R.string.cards_description),
                 modifier = Modifier
                     .size(200.dp) // Tamaño de las tarjetas
 
@@ -149,7 +149,7 @@ fun WelcomeScreen(navController: NavController) {
 
         ) {
             Text(
-                text = "Registrarse",
+                text = stringResource(R.string.register),
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
@@ -164,12 +164,12 @@ fun WelcomeScreen(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "¿Ya tienes una cuenta? ",
+                text = stringResource(R.string.have_account),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
             Text(
-                text = "Inicia sesión aquí",
+                text = stringResource(R.string.login_here),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF9C8AE0), // Color violeta claro
                 fontWeight = FontWeight.Bold,

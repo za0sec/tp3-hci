@@ -20,6 +20,8 @@ import androidx.navigation.NavController
 import com.example.app_grupo13.ui.theme.DarkBackground
 import com.example.app_grupo13.ui.theme.LightText
 import com.example.app_grupo13.ui.viewmodels.UserViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.app_grupo13.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +58,7 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back Arrow",
+                        contentDescription = stringResource(R.string.back_arrow),
                         tint = Color.White
                     )
                 }
@@ -65,7 +67,7 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
             Spacer(modifier = Modifier.height(50.dp)) // Espaciado entre la flecha y el título
 
             Text(
-                text = "Creá tu cuenta",
+                text = stringResource(R.string.signup_title),
                 color = LightText,
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontSize = 32.sp,
@@ -79,11 +81,11 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 value = firstName,
                 onValueChange = { firstName = it },
                 singleLine = true,
-                label = { Text("Nombre", color = Color.Gray) },
+                label = { Text(stringResource(R.string.first_name), color = Color.Gray) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "Nombre",
+                        contentDescription = stringResource(R.string.first_name),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -105,11 +107,11 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 value = lastName,
                 onValueChange = { lastName = it },
                 singleLine = true,
-                label = { Text("Apellido", color = Color.Gray) },
+                label = { Text(stringResource(R.string.last_name), color = Color.Gray) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "Apellido",
+                        contentDescription = stringResource(R.string.last_name),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -131,11 +133,11 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 value = email,
                 onValueChange = { email = it },
                 singleLine = true,
-                label = { Text("Email", color = Color.Gray) },
+                label = { Text(stringResource(R.string.email), color = Color.Gray) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
-                        contentDescription = "Email",
+                        contentDescription = stringResource(R.string.email_icon),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -157,12 +159,12 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 value = password,
                 onValueChange = { password = it },
                 singleLine = true,
-                label = { Text("Contraseña", color = Color.Gray) },
+                label = { Text(stringResource(R.string.password), color = Color.Gray) },
                 visualTransformation = PasswordVisualTransformation(),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "Contraseña",
+                        contentDescription = stringResource(R.string.password_icon),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -184,12 +186,12 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 singleLine = true,
-                label = { Text("Confirmar contraseña", color = Color.Gray) },
+                label = { Text(stringResource(R.string.confirm_password), color = Color.Gray) },
                 visualTransformation = PasswordVisualTransformation(),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "Confirmar contraseña",
+                        contentDescription = stringResource(R.string.confirm_password),
                         tint = Color(0xFF9C8AE0)
                     )
                 },
@@ -221,7 +223,7 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                 )
             ) {
                 Text(
-                    text = "Continuar",
+                    text = stringResource(R.string.continue_button),
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
@@ -234,7 +236,7 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
                     popUpTo("register") { inclusive = true }
                 }
                 false -> Text(
-                    text = "Error al registrarte. Intenta de nuevo.",
+                    text = stringResource(R.string.registration_error),
                     color = Color.Red,
                     modifier = Modifier.padding(top = 16.dp)
                 )
@@ -243,4 +245,3 @@ fun RegisterScreen(navController: NavController, userViewModel: UserViewModel) {
         }
     }
 }
-

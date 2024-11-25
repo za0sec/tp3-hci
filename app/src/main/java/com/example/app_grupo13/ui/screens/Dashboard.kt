@@ -44,22 +44,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
 import com.example.app_grupo13.ui.components.NavBar
 import com.example.app_grupo13.ui.viewmodels.DashboardViewModel
-import com.example.app_grupo13.ui.viewmodels.DashboardViewModelFactory
+import com.example.app_grupo13.utils.PreferencesManager
 import java.util.Locale
 
 
 @Composable
 fun Dashboard(
-    onLanguageChange: (String) -> Unit,
     navController: NavController,
-    viewModel: DashboardViewModel = viewModel(
-        factory = DashboardViewModelFactory(LocalContext.current)
-    )
+    viewModel: DashboardViewModel,
+    onLanguageChange: (String) -> Unit
 ) {
     val context = LocalContext.current
     val currentLanguage = context.resources.configuration.locales[0].language
@@ -101,10 +98,10 @@ fun Dashboard(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Column {
-                        Text(stringResource(id = R.string.hello), color = Color.White, fontSize = 16.sp)
+                        Text(stringResource(R.string.hello), color = Color.White, fontSize = 16.sp)
                         if (isLoading) {
                             Text(
-                                text = "Cargando...",
+                                text = stringResource(R.string.loading),
                                 color = Color.White,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
@@ -118,7 +115,7 @@ fun Dashboard(
                                     fontWeight = FontWeight.Bold
                                 )
                             } ?: Text(
-                                text = "Usuario",
+                                text = stringResource(R.string.user_default),
                                 color = Color.White,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
@@ -155,10 +152,13 @@ fun Dashboard(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Balance", color = Color.Black, fontSize = 16.sp)
+                            Text(stringResource(R.string.balance), color = Color.Black, fontSize = 16.sp)
                             Icon(
                                 painter = painterResource(id = if (isBalanceVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off),
-                                contentDescription = if (isBalanceVisible) "Ocultar balance" else "Mostrar balance",
+                                contentDescription = if (isBalanceVisible) 
+                                    stringResource(R.string.hide_balance) 
+                                else 
+                                    stringResource(R.string.show_balance),
                                 modifier = Modifier
                                     .size(20.dp)
                                     .clickable { isBalanceVisible = !isBalanceVisible },
@@ -179,26 +179,44 @@ fun Dashboard(
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
                             ActionIcon(
-                                R.drawable.ic_deposit, "Depositar", Color(0xFF66344A),
-                                onClick = { navController.navigate("deposit") })
+                                R.drawable.ic_deposit, 
+                                stringResource(R.string.deposit), 
+                                Color(0xFF66344A),
+                                onClick = { navController.navigate("deposit") }
+                            )
                             ActionIcon(
-                                R.drawable.ic_transfer, "Transferir", Color(0xFFE08453),
-                                onClick = { navController.navigate("transfer") })
+                                R.drawable.ic_transfer, 
+                                stringResource(R.string.transfer), 
+                                Color(0xFFE08453),
+                                onClick = { navController.navigate("transfer") }
+                            )
                             ActionIcon(
-                                R.drawable.ic_qr, "Pagar", Color(0xFFFFBC52),
-                                onClick = { navController.navigate("pay") })
+                                R.drawable.ic_qr, 
+                                stringResource(R.string.pay), 
+                                Color(0xFFFFBC52),
+                                onClick = { showPaymentDialog = true }) 
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Text("Servicios", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.services), 
+                    color = Color.White, 
+                    fontSize = 18.sp, 
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 GridServices(navController)
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Text("Ofertas Especiales", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.special_offers), 
+                    color = Color.White, 
+                    fontSize = 18.sp, 
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 SpecialOffers()
             }
@@ -212,7 +230,8 @@ fun Dashboard(
         SettingsDialog(
             onDismiss = { showSettingsDialog = false },
             onLanguageChange = { language ->
-                println("Idioma seleccionado: $language") // Implementa el cambio de idioma
+                onLanguageChange(language)
+                showSettingsDialog = false
             },
             onLogout = {
                 navController.navigate("login") {
@@ -225,10 +244,10 @@ fun Dashboard(
     if (showPaymentDialog) {
         AlertDialog(
             onDismissRequest = { showPaymentDialog = false },
-            title = { Text(text = "Selecciona el método de pago") },
+            title = { Text(text = stringResource(R.string.select_payment_method)) },
             text = {
                 Column {
-                    Text("Elige una opción para continuar:")
+                    Text(stringResource(R.string.choose_option))
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
@@ -237,7 +256,7 @@ fun Dashboard(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Pagar con QR")
+                        Text(stringResource(R.string.pay_with_qr))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -247,7 +266,7 @@ fun Dashboard(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Pagar con saldo en cuenta")
+                        Text(stringResource(R.string.pay_with_balance))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -257,14 +276,14 @@ fun Dashboard(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Pagar con tarjeta")
+                        Text(stringResource(R.string.pay_with_card))
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showPaymentDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -277,12 +296,14 @@ fun SettingsDialog(
     onLanguageChange: (String) -> Unit,
     onLogout: () -> Unit
 ) {
-    var context = LocalContext.current
-    var selectedLanguage by remember { mutableStateOf("es") } // Estado para el idioma seleccionado
+    val context = LocalContext.current
+    var selectedLanguage by remember { 
+        mutableStateOf(PreferencesManager.getLanguage(context))
+    }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Ajustes", color = Color.White) },
+        title = { Text(stringResource(R.string.settings), color = Color.White) },
         text = {
             Column {
                 // Opciones de idioma
@@ -292,14 +313,13 @@ fun SettingsDialog(
                     onSelect = { selectedLanguage = "es" }
                 )
                 LanguageOption(
-                    language = "Inglés",
+                    language = "English",
                     selectedLanguage = selectedLanguage,
                     onSelect = { selectedLanguage = "en" }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Botones "Cancelar" y "Guardar"
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -313,12 +333,12 @@ fun SettingsDialog(
                             .weight(1f)
                             .padding(horizontal = 8.dp)
                     ) {
-                        Text("Cancelar", color = Color.White)
+                        Text(stringResource(R.string.cancel), color = Color.White)
                     }
 
                     Button(
                         onClick = {
-                            updateLanguage(context, selectedLanguage) // Actualiza el idioma
+                            onLanguageChange(selectedLanguage)
                             onDismiss()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7059AB)),
@@ -326,17 +346,16 @@ fun SettingsDialog(
                             .weight(1f)
                             .padding(horizontal = 8.dp)
                     ) {
-                        Text("Guardar", color = Color.White)
+                        Text(stringResource(R.string.save), color = Color.White)
                     }
                 }
 
-                // Botón "Cerrar Sesión"
                 Button(
                     onClick = { onLogout() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Cerrar Sesión", color = Color.White)
+                    Text(stringResource(R.string.logout), color = Color.White)
                 }
             }
         },
@@ -348,26 +367,18 @@ fun SettingsDialog(
 }
 
 @Composable
-fun LanguageOption(language: String, selectedLanguage: String, onSelect: (String) -> Unit) {
+fun LanguageOption(language: String, selectedLanguage: String, onSelect: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onSelect(
-                    if (language == "Español") "es" else "en"
-                )
-            }
+            .clickable(onClick = onSelect)
             .padding(8.dp)
     ) {
         RadioButton(
             selected = (language == "Español" && selectedLanguage == "es") ||
-                    (language == "Inglés" && selectedLanguage == "en"),
-            onClick = {
-                onSelect(
-                    if (language == "Español") "es" else "en"
-                )
-            },
+                    (language == "English" && selectedLanguage == "en"),
+            onClick = onSelect,
             colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF9C8AE0))
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -416,15 +427,15 @@ fun GridServices(navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            ServiceCard("Movimientos", R.drawable.ic_movements) { navController.navigate("movements") }
-            ServiceCard("Tarjetas", R.drawable.ic_cards) { navController.navigate("cards") }
-            ServiceCard("Inversiones", R.drawable.ic_invest) { navController.navigate("invest") }
+            ServiceCard(R.string.movements, R.drawable.ic_movements) { navController.navigate("movements") }
+            ServiceCard(R.string.cards, R.drawable.ic_cards) { navController.navigate("cards") }
+            ServiceCard(R.string.investments, R.drawable.ic_invest) { navController.navigate("invest") }
         }
     }
 }
 
 @Composable
-fun ServiceCard(title: String, icon: Int, onClick: () -> Unit) {
+fun ServiceCard(title: Int, icon: Int, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -443,14 +454,14 @@ fun ServiceCard(title: String, icon: Int, onClick: () -> Unit) {
         ) {
             Icon(
                 painter = painterResource(id = icon),
-                contentDescription = title,
+                contentDescription = stringResource(id = title),
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .size(48.dp)
                     .padding(bottom = 4.dp)
             )
             Text(
-                text = title,
+                text = stringResource(id = title),
                 color = Color.Black,
                 fontSize = 12.sp,
                 maxLines = 1,
@@ -467,9 +478,9 @@ fun SpecialOffers() {
     var currentPage by remember { mutableStateOf(0) }
     val pagerState = rememberPagerState(pageCount = { 3 })
     val offers = listOf(
-        Offer("JUNK FOOD", "Hasta 60% de descuento", R.drawable.ic_burger, Color(0xFF66344A)),
-        Offer("DEPORTES", "30% de descuento", R.drawable.ic_sports, Color(0xFFE08453)),
-        Offer("CINE", "2x1 en entradas", R.drawable.ic_cinema, Color(0xFFFFBC52))
+        Offer(stringResource(R.string.junk_food), stringResource(R.string.junk_food_desc), R.drawable.ic_burger, Color(0xFF66344A)),
+        Offer(stringResource(R.string.sports), stringResource(R.string.sports_desc), R.drawable.ic_sports, Color(0xFFE08453)), 
+        Offer(stringResource(R.string.cinema), stringResource(R.string.cinema_desc), R.drawable.ic_cinema, Color(0xFFFFBC52))
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -518,7 +529,6 @@ fun SpecialOffers() {
             }
         }
 
-        // Indicador de las páginas
         Row(
             Modifier
                 .padding(top = 16.dp)
@@ -545,10 +555,8 @@ private fun updateLanguage(context: Context, language: String) {
     config.setLocale(locale)
     context.createConfigurationContext(config)
 
-    // Notify the change to UI
     (context as? ComponentActivity)?.recreate()
 }
-
 
 data class Offer(
     val title: String,

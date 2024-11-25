@@ -73,64 +73,59 @@ import com.example.app_grupo13.ui.screens.PayWithCardScreen
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
+import com.example.app_grupo13.utils.LocaleHelper
+import com.example.app_grupo13.ui.viewmodels.LanguageViewModel
+import android.content.Context
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.app_grupo13.utils.PreferencesManager
 
 typealias LumaListener = (luma: Double) -> Unit
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewBinding: ActivityMainBinding
+    private lateinit var userViewModel: UserViewModel
+    private lateinit var languageViewModel: LanguageViewModel
+    private var cameraExecutor: ExecutorService? = null
+    private var shouldRecreate = false
 
-    private var imageCapture: ImageCapture? = null
-
-    private var videoCapture: VideoCapture<Recorder>? = null
-    private var recording: Recording? = null
-
-    private lateinit var cameraExecutor: ExecutorService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Establecer el idioma a español
-        val locale = Locale("es")
-        Locale.setDefault(locale)
-
-        val config = Configuration(resources.configuration)
-        config.setLocale(locale)
-
-        baseContext.createConfigurationContext(config)
-
-
-        viewBinding = ActivityMainBinding.inflate(layoutInflater)
-
-
-        setContentView(viewBinding.root)
-
-
-
-        // Request camera permissions
-        if (allPermissionsGranted()) {
-            startCamera()
-        } else {
-            requestPermissions()
-        }
-
-        // Set up the listeners for take photo and video capture buttons
-        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
-        viewBinding.videoCaptureButton.setOnClickListener { captureVideo() }
-
-        cameraExecutor = Executors.newSingleThreadExecutor()
-
-        val remoteDataSource = RemoteDataSource(this)
-        val userRepository = UserRepository(remoteDataSource)
-        val userViewModel = ViewModelProvider(
+        
+        languageViewModel = ViewModelProvider(this)[LanguageViewModel::class.java]
+        userViewModel = ViewModelProvider(
             this,
             UserViewModelFactory(this)
         )[UserViewModel::class.java]
 
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
         setContent {
+            val currentLanguage by languageViewModel.currentLanguage.collectAsState()
+            
+            LaunchedEffect(currentLanguage) {
+                if (shouldRecreate) {
+                    shouldRecreate = false
+                    recreate()
+                }
+            }
+
             PlumTheme {
-                AppNavigation(userViewModel)
+                AppNavigation(
+                    onLanguageChange = { language ->
+                        shouldRecreate = true
+                        languageViewModel.updateLanguage(this, language)
+                    }
+                )
             }
         }
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val language = PreferencesManager.getLanguage(newBase)
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, language))
     }
 
     private fun takePhoto() {}
@@ -180,7 +175,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        cameraExecutor.shutdown()
+        cameraExecutor?.shutdown()
     }
 
     companion object {
@@ -222,28 +217,27 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun AppNavigation(userViewModel: UserViewModel) {
+fun AppNavigation(onLanguageChange: (String) -> Unit) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "welcome") {
         composable("welcome") { WelcomeScreen(navController) }
-        composable("register") { RegisterScreen(navController, userViewModel) }
+        composable("register") { 
+            RegisterScreen(
+                navController = navController,
+                userViewModel = viewModel(factory = UserViewModelFactory(LocalContext.current))
+            ) 
+        }
         composable("login") { 
             LoginScreen(
                 navController = navController,
-                viewModel = viewModel(
-                    factory = LoginViewModelFactory(LocalContext.current)
-                )
+                viewModel = viewModel(factory = LoginViewModelFactory(LocalContext.current))
             ) 
         }
-        composable("reset_password") { ResetPasswordScreen(navController) }
         composable("dashboard") { 
             Dashboard(
                 navController = navController,
-                viewModel = viewModel(
-                    factory = DashboardViewModelFactory(LocalContext.current)
-
-                ),
-                onLanguageChange = { /* Aquí puedes manejar el cambio de idioma si es necesario */ }
+                viewModel = viewModel(factory = DashboardViewModelFactory(LocalContext.current)),
+                onLanguageChange = onLanguageChange
             ) 
         }
         composable("movements") { MovementsScreen(navController) }
