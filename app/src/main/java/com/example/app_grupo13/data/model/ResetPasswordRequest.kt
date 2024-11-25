@@ -3,6 +3,7 @@ package com.example.app_grupo13.data.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Balance(
-    val balance: Double
-)
+data class ResetPasswordRequest(
+    val code: String,
+    val password: String
+) 
