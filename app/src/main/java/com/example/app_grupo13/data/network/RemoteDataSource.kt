@@ -11,6 +11,7 @@ import com.example.app_grupo13.data.model.LoginData
 import com.example.app_grupo13.data.model.LoginResponse
 import com.example.app_grupo13.data.model.Payment
 import com.example.app_grupo13.data.model.PaymentRequest
+import com.example.app_grupo13.data.model.PaymentResponse
 import com.example.app_grupo13.data.model.RechargeRequest
 import com.example.app_grupo13.data.model.RecoverPasswordRequest
 import com.example.app_grupo13.data.model.RegistrationData
@@ -285,7 +286,7 @@ class RemoteDataSource(private val context: Context) {
         range: String? = null,
         source: String? = null,
         cardId: Int? = null
-    ): Response<List<Payment>> {
+    ): Response<PaymentResponse> {
         return try {
             Log.d("RemoteDataSource", "Fetching payments with filters: page=$page, direction=$direction")
             val response = walletApiService.getPayments(page, direction, pending, type, range, source, cardId)

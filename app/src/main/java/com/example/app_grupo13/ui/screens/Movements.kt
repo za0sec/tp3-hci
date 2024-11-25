@@ -5,149 +5,215 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.app_grupo13.R
+import com.example.app_grupo13.data.model.Payment
 import com.example.app_grupo13.ui.components.NavBar
+import com.example.app_grupo13.ui.viewmodels.PaymentViewModel
+import com.example.app_grupo13.ui.viewmodels.PaymentViewModelFactory
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
-fun MovementsScreen(navController: NavController) {
+fun MovementsScreen(
+    navController: NavController,
+    viewModel: PaymentViewModel = viewModel(factory = PaymentViewModelFactory(LocalContext.current))
+) {
+    val payments by viewModel.payments.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    var currentPage by remember { mutableStateOf(1) }
+    var canLoadMore by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadPayments(page = currentPage)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF17171F))
     ) {
+        // Header
         Box(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            contentAlignment = Alignment.Center
-
-        ){
-            Icon(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Plum",
-                modifier = Modifier.size(150.dp),
-                tint = Color.Unspecified // Deja el color original del ícono
-            )
-        }
-
-        Column(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Encabezado con texto y botones (sin el logo)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                Text(
-                    "Movimientos",
-                    color = Color.White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.White
                 )
-                Row {
-
-                    IconButton(onClick = { /* Acción del botón ordenar */ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_sort),
-                            contentDescription = "Ordenar",
-                            tint = Color(0xFF4A347F)
-                        )
-                    }
-                    IconButton(onClick = { /* Acción del botón filtrar */ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_filtro),
-                            contentDescription = "Filtrar",
-                            tint = Color(0xFF4A347F)
-                        )
-                    }
-                }
             }
-
-            // Lista de transacciones
-            val transactions = listOf(
-                Transaction("Jane Doe", -3000.00),
-                Transaction("John Doe", 54000.00),
-                Transaction("John Doe", 500.00),
-                Transaction("Jane Doe", -83000.50),
-                Transaction("John Doe", 1200.00),
-                Transaction("John Doe", 1500.00)
+            Text(
+                text = "Movimientos",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
             )
+        }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(0.5.dp)
-            ) {
-                items(transactions) { transaction ->
-                    TransactionCard(transaction)
+        // Content
+        Box(modifier = Modifier.weight(1f)) {
+            when {
+                error != null -> {
+                    Text(
+                        text = error ?: "Error desconocido",
+                        color = Color.Red,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    )
+                }
+                payments.isEmpty() && !isLoading -> {
+                    Text(
+                        text = "No hay movimientos para mostrar",
+                        color = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(payments) { payment ->
+                            PaymentItem(payment = payment)
+                        }
+
+                        item {
+                            if (isLoading) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(color = Color(0xFF7059AB))
+                                }
+                            }
+                        }
+
+                        // Detectar cuando llegamos al final para cargar más
+                        item {
+                            if (!isLoading) {
+                                LaunchedEffect(Unit) {
+                                    viewModel.loadMorePayments()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+
         NavBar(navController = navController)
     }
 }
 
-
-data class Transaction(
-    val name: String,
-    val amount: Double
-)
-
 @Composable
-fun TransactionCard(transaction: Transaction) {
-    Box(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+fun PaymentItem(payment: Payment) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFEDEDED))
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(16.dp)
-
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Icono y detalles
             Row(
-                modifier = Modifier
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
             ) {
                 Icon(
-                    painter = painterResource(id = if (transaction.amount < 0) R.drawable.arrow_down else R.drawable.arrow_up),
-                    contentDescription = if (transaction.amount < 0) "Gasto" else "Ingreso",
-                    tint = if (transaction.amount < 0) Color(0xFFEB4335) else Color(0xFF34A853),
-                    modifier = Modifier.size(50.dp)
+                    painter = painterResource(
+                        id = when (payment.type) {
+                            "CARD" -> R.drawable.ic_cards
+                            "BALANCE" -> R.drawable.ic_transfer
+                            else -> R.drawable.ic_movements
+                        }
+                    ),
+                    contentDescription = null,
+                    tint = when (payment.type) {
+                        "CARD" -> Color(0xFF66344A)
+                        "BALANCE" -> Color(0xFFE08453)
+                        else -> Color(0xFF4A347F)
+                    },
+                    modifier = Modifier.size(40.dp)
                 )
-
-                Column(
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .weight(1f)
-                ) {
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                Column {
                     Text(
-                        text = transaction.name,
-                        color = Color.Black,
-                        fontSize = 16.sp
+                        text = when (payment.type) {
+                            "CARD" -> "Pago con tarjeta"
+                            "BALANCE" -> "Transferencia"
+                            else -> "Movimiento"
+                        },
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
-                    Text(
-                        text = if (transaction.amount < 0)
-                            "-$${String.format("%.2f", -transaction.amount)}"
-                        else
-                            "+$${String.format("%.2f", transaction.amount)}",
-                        color = if (transaction.amount < 0) Color(0xFFEB4335) else Color(0xFF34A853),
-                        fontSize = 14.sp
-                    )
+                    payment.createdAt?.let { date ->
+                        Text(
+                            text = formatDate(date),
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
             }
+
+            // Monto
+            payment.amount?.let { amount ->
+                Text(
+                    text = "$${String.format("%.2f", amount)}",
+                    color = if (amount < 0) Color.Red else Color(0xFF34A853),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
         }
+    }
+}
+
+private fun formatDate(dateString: String): String {
+    try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val date = inputFormat.parse(dateString)
+        return outputFormat.format(date!!)
+    } catch (e: Exception) {
+        return dateString
     }
 }

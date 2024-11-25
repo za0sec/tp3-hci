@@ -19,6 +19,7 @@ import com.example.app_grupo13.data.model.RecoverPasswordRequest
 import com.example.app_grupo13.data.model.ResetPasswordRequest
 import com.example.app_grupo13.data.model.Payment
 import com.example.app_grupo13.data.model.PaymentRequest
+import com.example.app_grupo13.data.model.PaymentResponse
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -100,7 +101,7 @@ interface WalletApiService {
         @Query("range") range: String? = null,
         @Query("source") source: String? = null,
         @Query("cardId") cardId: Int? = null
-    ): Response<List<Payment>>
+    ): Response<PaymentResponse>
 
     @GET("payment/{paymentId}")
     suspend fun getPayment(@Path("paymentId") paymentId: Int): Response<Payment>

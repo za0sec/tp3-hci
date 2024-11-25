@@ -67,6 +67,8 @@ import androidx.core.content.PermissionChecker
 import com.example.app_grupo13.databinding.ActivityMainBinding
 import com.example.app_grupo13.ui.viewmodels.CardsViewModelFactory
 import com.example.app_grupo13.ui.screens.InvestmentScreen
+import com.example.app_grupo13.ui.screens.PayWithBalanceScreen
+import com.example.app_grupo13.ui.screens.PayWithCardScreen
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -253,6 +255,13 @@ fun AppNavigation(userViewModel: UserViewModel) {
                 )
             )
         }
+        composable("pay_qr") { PayScreen(navController) }
         composable("invest"){InvestmentScreen(navController)}
+        composable("pay_with_card") {
+            PayWithCardScreen(navController)
+        }
+        composable("pay_with_balance") {
+            PayWithBalanceScreen(navController)
+        }
     }
 }
