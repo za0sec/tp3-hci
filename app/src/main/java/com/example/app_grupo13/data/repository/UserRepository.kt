@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.app_grupo13.data.model.Balance
 import com.example.app_grupo13.data.model.RegistrationData
 import com.example.app_grupo13.data.model.User
+import com.example.app_grupo13.data.model.WalletDetails
 import com.example.app_grupo13.data.network.RemoteDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,5 +48,9 @@ class UserRepository(private val remoteDataSource: RemoteDataSource) {
 
     suspend fun fetchBalance(): Response<Balance> {
         return remoteDataSource.getBalance()
+    }
+
+    suspend fun fetchWalletDetails(): Response<WalletDetails> {
+        return remoteDataSource.getWalletDetails()
     }
 }
